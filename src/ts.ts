@@ -2,24 +2,21 @@
  * Find Target Server
  */
 
-import { getTargetNodesSimple } from './lib.node';
+import { NS } from "@ns";
+import { SimpleNode, getTargetNodesSimple } from 'lib/lib.node';
 
-/** @param {NS} ns */
-export async function main(ns) {
 
-  const [compareField] = ns.args.length ? ns.args : ['hackChance']; // maxMoney | hackChance
+export async function main(ns: NS): Promise<void> {
 
-  ns.tprint(compareField);
-
+  const compareField = ns.args.length>0 ? ns.args[0].toString() : 'hackChance'; // maxMoney | hackChance
   const filename = 'network-report.txt';
 
-
-  async function writeNodesToFile(nodes) {
-
+  async function writeNodesToFile(nodes: SimpleNode[]) {
     const lines = [];
     for (const node of nodes) {
       for (const field of Object.keys(node)) {
-        const value = (field.toLocaleLowerCase().includes('money')) ? ns.formatNumber(node[field]) : node[field];
+        const key = field as keyof typeof node;
+        const value = (field.toLocaleLowerCase().includes('money')) ? ns.formatNumber(Number(node[key])) : node[key];
         lines.push(field + ': ' + value)
       }
       lines.push('');
@@ -32,6 +29,5 @@ export async function main(ns) {
   }
 
   const targetNodes = getTargetNodesSimple(ns, compareField, 'asc');
-
   await writeNodesToFile(targetNodes);
 }
