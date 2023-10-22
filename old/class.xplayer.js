@@ -5,7 +5,6 @@ export default class XPlayer {
     this.ns = ns;
     this._id = id;
     this.player = ns.getPlayer();
-    console.log('Player', this.player);
   }
   get id() { return this._id };
 

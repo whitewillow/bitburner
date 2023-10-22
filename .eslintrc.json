@@ -24,6 +24,6 @@
         "NetscriptDefinitions.d.ts"
     ],
     "rules": {
-        "allowEmptyCatch": true
+        "allow": true
     }
 }

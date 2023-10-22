@@ -33,7 +33,6 @@ async function syncStatic() {
         if (relative[0] === '\\') {
           relative = relative.substring(1);
         }
-        console.log(`${normalize(relative)} ${eventType}`);
       }
     },
     watch: true,
@@ -57,7 +56,6 @@ async function initTypeScript() {
       !fs.existsSync(srcFile.replace(/\.js$/, '.ts'))
     ) {
       await fs.promises.unlink(distFile);
-      console.log(`${normalize(relative)} deleted`);
     }
   }
 }
@@ -74,7 +72,6 @@ async function watchTypeScript() {
     // if distFile exists, delete it
     if (fs.existsSync(distFile)) {
       await fs.promises.unlink(distFile);
-      console.log(`${normalize(relative)} deleted`);
     }
   });
 }
@@ -88,6 +85,5 @@ async function syncTypeScript() {
   return watchTypeScript();
 }
 
-console.log('Start watching static and ts files...');
 syncStatic();
 syncTypeScript();

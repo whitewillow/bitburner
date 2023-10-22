@@ -1,14 +1,12 @@
 /**
- * Find Target Server
+ * TOOL - List Target Server Info
  */
 
-import { NS } from "@ns";
+import { NS } from '@ns';
 import { SimpleNode, getTargetNodesSimple } from 'lib/lib.node';
 
-
 export async function main(ns: NS): Promise<void> {
-
-  const compareField = ns.args.length>0 ? ns.args[0].toString() : 'hackChance'; // maxMoney | hackChance
+  const compareField = ns.args.length > 0 ? ns.args[0].toString() : 'hackChance'; // maxMoney | hackChance
   const filename = 'network-report.txt';
 
   async function writeNodesToFile(nodes: SimpleNode[]) {
@@ -16,8 +14,10 @@ export async function main(ns: NS): Promise<void> {
     for (const node of nodes) {
       for (const field of Object.keys(node)) {
         const key = field as keyof typeof node;
-        const value = (field.toLocaleLowerCase().includes('money')) ? ns.formatNumber(Number(node[key])) : node[key];
-        lines.push(field + ': ' + value)
+        const value = field.toLocaleLowerCase().includes('money')
+          ? ns.formatNumber(Number(node[key]))
+          : node[key];
+        lines.push(field + ': ' + value);
       }
       lines.push('');
     }
