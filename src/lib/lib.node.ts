@@ -30,28 +30,7 @@ export interface ThreatAssesment {
   isPrepped?: boolean;
 }
 
-export function getSimpleNodeInfo(ns: NS, node: string, parent = 'home'): SimpleNode {
-  const maxMoney = ns.getServerMaxMoney(node);
-  const moneyAvailable = ns.getServerMoneyAvailable(node);
-  const hackChance = Math.floor(ns.hackAnalyzeChance(node) * 100);
-  const reqHackLevel = ns.getServerRequiredHackingLevel(node);
-  const isHackable = canHack(ns, node);
-  return {
-    node,
-    maxMoney,
-    moneyAvailable,
-    hackChance,
-    reqHackLevel,
-    isHackable,
-    parent,
-  };
-}
-
-export function getNodesWithParent(
-  ns: NS,
-  current = 'home',
-  scanNodes: Array<{ parent: string; node: string }> = [],
-) {
+export function getNodesWithParent(ns: NS, current = 'home', scanNodes: Array<{ parent: string; node: string }> = []) {
   let connectedNodes = ns.scan(current).map((m) => ({ parent: current, node: m }));
 
   const knownNodes = scanNodes.map((m) => m.node);
@@ -67,23 +46,9 @@ export function getNodesWithParent(
   );
 }
 
-export function getAllNodes(ns: NS, current = 'home', set = new Set()) {
-  let nodes = ns.scan(current);
-  let nextNodes = nodes.filter((f) => !set.has(f));
-  nextNodes.forEach((f) => {
-    set.add(f);
-    return getAllNodes(ns, f, set);
-  });
-  return Array.from(set.keys());
-}
-
 export function getTargetNodesSimple(ns: NS, sortByField: string, sortOrder = 'asc') {
-  const filteredNotes = getNodesWithParent(ns).filter(
-    (f) => f.node !== 'home' && !f.node.includes('pserv-'),
-  );
-  return filteredNotes
-    .map((m) => getSimpleNodeInfo(ns, m.node, m.parent))
-    .sort(sortField(sortByField));
+  const filteredNotes = getNodesWithParent(ns).filter((f) => f.node !== 'home' && !f.node.includes('pserv-'));
+  return filteredNotes.map((m) => getSimpleNodeInfo(ns, m.node, m.parent)).sort(sortField(sortByField));
 }
 
 export function getServerNodesDetailed(ns: NS, sortByField: string, sortOrder = 'asc') {
@@ -92,9 +57,7 @@ export function getServerNodesDetailed(ns: NS, sortByField: string, sortOrder = 
 }
 
 export function getTargetNodesDetailed(ns: NS, sortByField: string, sortOrder = 'asc') {
-  const filteredNotes = getNodesWithParent(ns).filter(
-    (f) => f.node !== 'home' && !f.node.includes('pserv-'),
-  );
+  const filteredNotes = getNodesWithParent(ns).filter((f) => f.node !== 'home' && !f.node.includes('pserv-'));
   return filteredNotes.map((m) => new XServer(ns, m.node, m.parent)).sort(sortField(sortByField));
 }
 
@@ -105,9 +68,7 @@ export function getBotNodesDetailed(ns: NS): XServer[] {
 }
 
 export function getExternalBotNodesDetailed(ns: NS): XServer[] {
-  const filteredNotes = getNodesWithParent(ns).filter(
-    (f) => f.node !== 'home' && !f.node.includes('pserv-'),
-  );
+  const filteredNotes = getNodesWithParent(ns).filter((f) => f.node !== 'home' && !f.node.includes('pserv-'));
   return filteredNotes.map((m) => new XServer(ns, m.node, m.parent));
 }
 
@@ -147,11 +108,7 @@ export function getThreatAssesment(ns: NS, target: XServer): ThreatAssesment {
   };
 }
 
-export function getHackableNodes(
-  ns: NS,
-  hackChanceAtLeast = 100,
-  sortByField: 'baseDifficulty' = 'baseDifficulty',
-) {
+export function getHackableNodes(ns: NS, hackChanceAtLeast = 100, sortByField: 'baseDifficulty' = 'baseDifficulty') {
   const externalBotServers = getExternalBotNodesDetailed(ns);
   const hackable = externalBotServers.filter(
     (f) => f.hackChance >= hackChanceAtLeast && (f.server.moneyMax ?? 0) > 0 && canHack(ns, f.id),

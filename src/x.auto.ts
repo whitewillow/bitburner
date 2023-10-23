@@ -18,6 +18,7 @@ export async function main(ns: NS): Promise<void> {
 
   ns.disableLog('ALL');
   ns.clearLog();
+
   let readyForAttack: string[] = [];
   let currentlyPrepping: string[] = [];
   let currentlyAttacking: Array<Attack> = [];
@@ -54,6 +55,11 @@ export async function main(ns: NS): Promise<void> {
     return (b.server.moneyMax ?? 0) - (a.server.moneyMax ?? 0);
   }
 
+  /**
+   * Hackchance above 90
+   * Sorted by most money
+   * @returns
+   */
   function getPotentialTargets() {
     const underAttack = currentlyAttacking.map((m) => m.host);
     const potentialTargets = readyForAttack.filter((f) => !underAttack.includes(f)).map((m) => new XServer(ns, m));
@@ -67,7 +73,6 @@ export async function main(ns: NS): Promise<void> {
       return;
     }
 
-    // TODO: Add logic to select best target
     const [target] = potentialTargets;
     const pid = ns.run('x.proto.batch.auto.js', 1, target.id);
     currentlyAttacking.push({ host: target.id, pid });
@@ -80,6 +85,25 @@ export async function main(ns: NS): Promise<void> {
     }
     currentlyAttacking = currentlyAttacking.filter((f) => f.host !== targetId);
     readyForAttack = readyForAttack.filter((f) => f !== targetId);
+  }
+
+  /**
+   * Potential a better target
+   */
+  function CheckBetterTargets() {
+    const potentialTargets = getPotentialTargets();
+    if (potentialTargets.length > 0) {
+      const [target] = potentialTargets;
+
+      /**
+       * Just kill the those under max money
+       * New attack will be generated next loop
+       */
+      currentlyAttacking
+        .map((m) => new XServer(ns, m.host))
+        .filter((f) => (f.server.moneyMax ?? 0) < (target.server.moneyMax ?? 0))
+        .forEach((f) => killAndRemoveAttack(f.id));
+    }
   }
 
   function checkAttackStatus() {
@@ -97,17 +121,7 @@ export async function main(ns: NS): Promise<void> {
       outOfSync.forEach((f) => killAndRemoveAttack(f.id));
     }
 
-    /**
-     * Potential a better target
-     */
-    const potentialTargets = getPotentialTargets();
-    if (potentialTargets.length > 0) {
-      const [target] = potentialTargets;
-      // Just kill the those under max money
-      currentlyAttacking
-        .map((m) => new XServer(ns, m.host))
-        .filter((f) => (f.server.moneyMax ?? 0) < (target.server.moneyMax ?? 0)).forEach((f) => killAndRemoveAttack(f.id)); 
-    }
+    CheckBetterTargets();
   }
 
   while (true) {

@@ -54,18 +54,6 @@ export function killScript(ns: NS, hostname: string, script: string) {
   }
 }
 
-export function penetrateServer(ns: NS, hostname: string) {
-  const cracks = getCrackScripts(ns);
-  ns.print('Penetrating: ' + hostname);
-  for (const file of Object.keys(cracks)) {
-    if (ns.fileExists(file, homeServer)) {
-      const runScript = cracks[file];
-      ns.print('Cracking:' + hostname + ' with: ' + file);
-      runScript(hostname);
-    }
-  }
-}
-
 export function getTotalScriptRam(ns: NS, scripts = []) {
   return scripts.reduce((sum, script) => {
     sum += ns.getScriptRam(script);

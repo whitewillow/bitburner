@@ -11,7 +11,6 @@ export async function main(ns: NS): Promise<void> {
   ns.clearLog();
 
   if(!isTargetReadyForAttack(ns, target)) {
-    ns.tprintRaw(['Target is not ready for attack: ', target]);
     ns.printRaw(['Target is not ready for attack: ', target]);
     ns.printRaw('- please prep before attacking');
     ns.printRaw('Exiting...');
@@ -21,8 +20,8 @@ export async function main(ns: NS): Promise<void> {
   const listCommands = getProtoBatch(ns, target);
   const totalScriptCost = listCommands.reduce((acc, cur) => acc + cur.ramOverride * cur.threads, 0);
 
-  ns.tprintRaw(['Starting AUTO Attack on: ', target]);
-  ns.tprintRaw(['Total script cost: ', totalScriptCost]);
+  ns.printRaw(['Starting AUTO Attack on: ', target]);
+  ns.printRaw(['Total script cost: ', totalScriptCost]);
 
   // TODO: if grow or security is not 0 then break - we are out of sync
 

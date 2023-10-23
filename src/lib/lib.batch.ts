@@ -116,7 +116,6 @@ export function getThreadSequence(ns: NS, target: string): ThreadSequence {
    * ??
    */
   const hackAmount = maxMoney * hackAnalyzed * hackThreads;
-  ns.tprint('hackAmount: ', hackAmount);
 
   const weaken1Threads = Math.ceil(
     (hackThreads * HALF_GROWTH_ADD_SECURITY_MULTIPLIER) / weakenAnalyzed,

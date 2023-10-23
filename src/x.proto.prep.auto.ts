@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { executeCommands, getPreppingBatch, getProtoBatch } from 'lib/lib.batch';
+import { executeCommands, getPreppingBatch } from 'lib/lib.batch';
 import XServer from 'lib/class.xserver';
 import { getBotNodesRange } from 'lib/lib.node';
 
