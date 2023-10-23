@@ -5,8 +5,8 @@ import { getBotNodesRange } from 'lib/lib.node';
 
 export async function main(ns: NS): Promise<void> {
   const target = ns.args[0]?.toString() ?? 'n00dles';
-  const fromServer: number = ns.args[1] as number ?? 0;
-  const toServer: number = ns.args[2] as number ?? 6;
+  const fromServer: number = (ns.args[1] as number) ?? 0;
+  const toServer: number = (ns.args[2] as number) ?? 6;
 
   ns.disableLog('ALL');
   ns.printRaw(['Starting Prepping Target: ', target]);
@@ -16,6 +16,8 @@ export async function main(ns: NS): Promise<void> {
 
   let i = 0;
   while (true) {
+    await ns.sleep(200);
+
     const targetServer = new XServer(ns, target);
 
     if (targetServer.isMoneyAvailableMaxed && targetServer.isServerWeakendToMinimum) {
@@ -31,7 +33,6 @@ export async function main(ns: NS): Promise<void> {
       }
       executeCommands(ns, listCommands, bot.id, target);
     }
-    await ns.sleep(200);
     i++;
     ns.print(`PrepBatch ${i} completed`);
   }

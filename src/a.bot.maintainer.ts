@@ -33,6 +33,7 @@ export async function main(ns: NS): Promise<void> {
   }
 
   function getPossibleBotNodesHosts() {
+    // console.log('getPossibleBotNodesHosts');
     return range(0, 25).map((m) => SERVER_PREFIX + m);
   }
 
@@ -44,6 +45,7 @@ export async function main(ns: NS): Promise<void> {
   }
 
   function purchaseServer(host: string, purchaseRamSize: number) {
+    // console.log('purchaseServer');
     ns.purchaseServer(host, purchaseRamSize);
   }
 
@@ -52,6 +54,9 @@ export async function main(ns: NS): Promise<void> {
    */
   let status = 'PURCHASING'; // 'PURCHASING' | 'UPGRADING' | 'MAINTAINING'
   while (true) {
+    // console.log('Sleep');
+    await ns.sleep(SLEEP_TIME);
+
     const hosts = getPossibleBotNodesHosts();
 
     updateScripts(hosts);
@@ -89,8 +94,11 @@ export async function main(ns: NS): Promise<void> {
 
       if (minRam === maxRam) {
         status = 'MAINTAINING';
+        // console.log('MAINTAINING');
         continue;
       }
+
+      // console.log('UPGRADING');
 
       getBotNodesDetailed(ns)
         .filter((f) => f.server.maxRam === minRam)
@@ -104,6 +112,5 @@ export async function main(ns: NS): Promise<void> {
         });
     }
 
-    await ns.sleep(SLEEP_TIME);
   }
 }

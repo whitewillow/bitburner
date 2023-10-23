@@ -27,6 +27,8 @@ export async function main(ns: NS): Promise<void> {
 
   let i = 0;
   while (true) {
+    await ns.sleep(200);
+
     const botServers = getBotNodesRange(ns, fromServer, toServer);
     for (const bot of botServers) {
       if (bot.ram.free < totalScriptCost) {
@@ -37,6 +39,5 @@ export async function main(ns: NS): Promise<void> {
     }
     i++;
     ns.print(`Batch ${i} completed`);
-    await ns.sleep(200);
   }
 }

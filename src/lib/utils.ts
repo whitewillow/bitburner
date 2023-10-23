@@ -87,6 +87,7 @@ export function deployVirusScripts(ns: NS, hostnames: string[]) {
 }
 
 export function deployProtoAct(ns: NS, hostnames: string[]) {
+  // console.log('deployProtoAct');
   for (const server of hostnames) {
     ns.scp('x.proto.act.js', server, 'home');
   }

@@ -46,6 +46,23 @@ export function getNodesWithParent(ns: NS, current = 'home', scanNodes: Array<{ 
   );
 }
 
+export function getSimpleNodeInfo(ns: NS, node: string, parent = 'home'): SimpleNode {
+  const maxMoney = ns.getServerMaxMoney(node);
+  const moneyAvailable = ns.getServerMoneyAvailable(node);
+  const hackChance = Math.floor(ns.hackAnalyzeChance(node) * 100);
+  const reqHackLevel = ns.getServerRequiredHackingLevel(node);
+  const isHackable = canHack(ns, node);
+  return {
+    node,
+    maxMoney,
+    moneyAvailable,
+    hackChance,
+    reqHackLevel,
+    isHackable,
+    parent,
+  };
+}
+
 export function getTargetNodesSimple(ns: NS, sortByField: string, sortOrder = 'asc') {
   const filteredNotes = getNodesWithParent(ns).filter((f) => f.node !== 'home' && !f.node.includes('pserv-'));
   return filteredNotes.map((m) => getSimpleNodeInfo(ns, m.node, m.parent)).sort(sortField(sortByField));
@@ -65,6 +82,10 @@ export function getBotNodesDetailed(ns: NS): XServer[] {
   return range(0, 25)
     .filter((f) => ns.serverExists(SERVER_PREFIX + f))
     .map((i) => new XServer(ns, SERVER_PREFIX + i));
+}
+
+export function hasAllBots(ns: NS): boolean {
+  return range(0, 25).filter((f) => ns.serverExists(SERVER_PREFIX + f)).length === 25;
 }
 
 export function getExternalBotNodesDetailed(ns: NS): XServer[] {
