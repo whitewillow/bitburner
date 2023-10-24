@@ -2,7 +2,7 @@ import { NS } from "@ns";
 
 export async function main(ns: NS): Promise<void> {
   const target = ns.args[0]?.toString() ?? 'n00dles';
-  ns.tprint('Target: ', target);
+  ns.print('Target: ', target);
 
   const HACK_COST = 1.7;
   const GROW_COST = 1.75;
@@ -18,11 +18,6 @@ export async function main(ns: NS): Promise<void> {
   // Are the times for H/G/W always a 1 : 3.2 : 4 ratio? 
   // Looks right from my spot-checking, didn't know if that was safe enough to plan around.
 
-  ns.tprint('ht ', ht);
-  ns.tprint('gt ', gt);
-  ns.tprint('wt ', wt);
-  ns.tprint('h_delay ', h_delay);
-  ns.tprint('g_delay ', g_delay);
 
   const freeRam =  ns.getServerMaxRam('home') - ns.getServerUsedRam('home');
 
@@ -33,7 +28,6 @@ export async function main(ns: NS): Promise<void> {
   // Total cost = 3.5 + 17.5 + 1.75 = 22.75 => 23
 
   const can_run_times = Math.floor(freeRam / Math.ceil((1.75*1)+(1.75*2)+(1.70*10)));
-  ns.tprint('can_run_times ', can_run_times);
 
   for (let i = can_run_times; i > 0; i--) {
       // ---- Batch

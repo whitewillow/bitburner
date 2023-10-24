@@ -8,14 +8,14 @@ export async function main(ns: NS): Promise<void> {
   const botServer = ns.getHostname();
 
   ns.disableLog('ALL');
-  ns.tprintRaw(['Target: ', target]);
-  ns.tprintRaw(['Starting batch attack on: ', target, ' from: ', botServer]);
+  ns.printRaw(['Target: ', target]);
+  ns.printRaw(['Starting batch attack on: ', target, ' from: ', botServer]);
 
   const freeRam = ns.getServerMaxRam(botServer) - ns.getServerUsedRam(botServer);
   const listCommands = getPreppingBatch(ns, target);
   const totalScriptCost = listCommands.reduce((acc, cur) => acc + cur.ramOverride * cur.threads, 0);
 
-  ns.tprint('Total script cost: ', totalScriptCost);
+  ns.print('Total script cost: ', totalScriptCost);
   let i = 0;
   while (true) {
     const pids: FilenameOrPID[] = [];

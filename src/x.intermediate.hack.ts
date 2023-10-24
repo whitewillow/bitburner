@@ -20,7 +20,7 @@ export async function main(ns: NS): Promise<void> {
     }
   }
 
-  ns.tprint('Starting Intermediate Hack - Focus: ' + CHOICE.toUpperCase());
+  ns.print('Starting Intermediate Hack - Focus: ' + CHOICE.toUpperCase());
 
   while (true) {
     const botServers = getServerNodesDetailed(ns, 'hackChance').filter((s) => s.id !== 'home');

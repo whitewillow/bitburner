@@ -33,12 +33,12 @@ export async function main(ns: NS): Promise<void> {
     let servers = list_servers(ns);
     const boughtServers = ns.getPurchasedServers();
     servers = servers.filter(s => !boughtServers.includes(s));
-    const hostname = servers.find(s => ns.ls(s).find(f => f.endsWith(".cct")))
-    if(!hostname) {
+    const hostnames = servers.filter(s => ns.ls(s).find(f => f.endsWith(".cct")))
+    if(!hostnames.length) {
         ns.tprint("No coding contract found.");
         return;
     }
 
-    ns.tprint(`Found coding contract on '${hostname}'.`)
+    ns.tprint(`Found coding contract on \n- ${hostnames.join('\n- ')}'.`)
 
 }

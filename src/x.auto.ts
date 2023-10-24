@@ -11,13 +11,15 @@ interface Attack {
 }
 
 export async function main(ns: NS): Promise<void> {
+  ns.disableLog('ALL');
+  ns.clearLog();
+  
   const fromHackChance = Number(ns.args[0] ?? 50);
   const MAX_PREPS = Number(ns.args[1] ?? 3);
   const MAX_ATTACKS = Number(ns.args[1] ?? 3);
   let i = 0;
 
-  ns.disableLog('ALL');
-  ns.clearLog();
+  
 
   let readyForAttack: string[] = [];
   let currentlyPrepping: string[] = [];

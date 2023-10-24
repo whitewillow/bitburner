@@ -5,7 +5,7 @@ import { NS } from '@ns';
  * @param ns 
  */
 export async function main(ns: NS): Promise<void> {
-
+  ns.disableLog('ALL');
   /**
    * ns.args
    * @param flag - 

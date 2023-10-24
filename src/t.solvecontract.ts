@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { assign2ColoringGraph } from 'lib/lib.contracts';
+import { assign2ColoringGraph, maxProfit } from 'lib/lib.contracts';
 
 export async function main(ns: NS): Promise<void> {
   ns.tprint('Hello Remote API!');
@@ -21,4 +21,12 @@ export async function main(ns: NS): Promise<void> {
   ]);
 
   ns.tprint('result: ' + result);
+
+  ns.tprint(`maxProfit SANATI = ${maxProfit([9, 151, 169, 35, 194, 68, 19, 148, 29, 97, 12, 29])} === 533`);
+
+  ns.tprint(`maxProfit = ${maxProfit([69, 97, 51, 191, 31, 33, 74, 111, 145, 75, 192, 119, 82, 24])}`);
+
+  // ns.tprint(`8 = ${hammingCode(8)}`);
+  // ns.tprint(`21 = ${hammingCode(21)}`);
+  // ns.tprint(`6220614038587 = ${hammingCode(6220614038587)}`);
 }

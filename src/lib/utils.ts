@@ -77,7 +77,7 @@ export function brutePenetrate(ns: NS, hostname: string): boolean {
   } catch {
     success = false;
   }
-  return success
+  return success;
 }
 
 export function deployVirusScripts(ns: NS, hostnames: string[]) {
@@ -113,12 +113,20 @@ export function sortField(byField: string) {
 
 /**
  * Sleeps/wait for pids (running script ids) to finish running
- * @param ns 
- * @param pids 
- * @param host 
- * @returns 
+ * @param ns
+ * @param pids
+ * @param host
+ * @returns
  */
 export async function waitForPIDs(ns: NS, pids: FilenameOrPID[], host?: string): Promise<boolean> {
   while (pids.some((pid) => ns.isRunning(pid, host))) await ns.sleep(5);
   return ns.sleep(5);
+}
+
+export function getMathMaxIndex(numbers: number[]): number {
+  return numbers.reduce((iMax, x, i, arr) => (x > arr[iMax] ? i : iMax), 0);
+}
+
+export function getMathMinIndex(numbers: number[]): number {
+  return numbers.reduce((iMin, x, i, arr) => (x < arr[iMin] ? i : iMin), 0);
 }

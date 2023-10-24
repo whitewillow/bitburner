@@ -8,7 +8,6 @@ import { range } from './lib/utils';
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.clearLog();
-  ns.tprint('Starting HackNet Maintainer');
   ns.print('Starting HackNet Maintainer - Max nodes:' + ns.hacknet.maxNumNodes());
   ns.print('---------------------------');
 
