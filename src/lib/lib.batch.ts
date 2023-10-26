@@ -10,7 +10,7 @@ import { FilenameOrPID, NS } from '@ns';
  */
 export const GROWTH_ADD_SECURITY_MULTIPLIER = 0.004; // 0.002 for each w2Thread
 export const HALF_GROWTH_ADD_SECURITY_MULTIPLIER = 0.002; // 0.002 for each w2Thread
-export const HACK_PERCENTAGE = 0.05; // 0.05 | 0.001
+export const HACK_PERCENTAGE = 0.1; // 0.05 | 0.001
 export const HACK_SCRIPT_RAM = 1.7;
 export const WEAKEN_SCRIPT_RAM = 1.75;
 export const GROW_SCRIPT_RAM = 1.75;
