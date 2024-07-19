@@ -6,6 +6,7 @@ import {
   totalWaysToSum,
   generateIpAddresses,
   mergeOverlappingIntervals,
+  minimumPathSumInTriangle,
 } from 'lib/lib.contracts';
 
 export async function main(ns: NS): Promise<void> {
@@ -20,6 +21,7 @@ export async function main(ns: NS): Promise<void> {
       'Generate IP Addresses',
       'Merge Overlapping Intervals',
       'Total Ways to Sum',
+      'Minimum Path Sum in Triangle',
     ],
   });
 
@@ -57,6 +59,10 @@ export async function main(ns: NS): Promise<void> {
 
   if (contract === 'Total Ways to Sum') {
     const result = totalWaysToSum(JSON.parse(input.toString()));
+    ns.tprint('result: ' + result);
+  }
+  if (contract === 'Minimum Path Sum in Triangle') {
+    const result = minimumPathSumInTriangle(JSON.parse(input.toString()));
     ns.tprint('result: ' + result);
   }
 

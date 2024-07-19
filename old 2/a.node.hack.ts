@@ -6,34 +6,26 @@ import { brutePenetrate, deployProto, deployProtoAct } from 'lib/utils';
 
 /**
  * Auto - Node Hacker - Looks for new servers to penetrate
- * Should be run in background when having enough memory
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
-  ns.tail();
+
   ns.printRaw('Starting Node Hacker');
 
   const WAIT_TIME = 10000;
   let state = 'INIT'; // INIT | NO_TARGET | TARGET_FOUND
 
-  function deployTools(targetIds: string[]) {
-    deployProtoAct(ns, targetIds);
-    deployProto(ns, targetIds);
-    ns.printRaw('Deployed tools');
-  }
-
   while (true) {
     const playerHackLvl = ns.getHackingLevel();
-    const possibleTargets = getTargetNodesDetailed(ns, 'hackChance');
-    const targetsNotAdmin = possibleTargets.filter(
+    const targets = getTargetNodesDetailed(ns, 'hackChance').filter(
       (t) =>
-        !t.server.hasAdminRights && t.server.requiredHackingSkill && t.server.requiredHackingSkill <= playerHackLvl,
+        !t.server.hasAdminRights &&
+        t.server.requiredHackingSkill &&
+        t.server.requiredHackingSkill <= playerHackLvl,
     );
 
-    deployTools(possibleTargets.map((m) => m.id));
-
-    if (targetsNotAdmin.length === 0) {
+    if (targets.length === 0) {
       if (state !== 'NO_TARGET') {
         ns.printRaw('No Targets found');
         state = 'NO_TARGET';
@@ -44,7 +36,16 @@ export async function main(ns: NS): Promise<void> {
 
     const success: XServer[] = [];
 
-    for (const target of targetsNotAdmin) {
+    deployProtoAct(
+      ns,
+      targets.map((t) => t.id),
+    );
+    deployProto(
+      ns,
+      targets.map((t) => t.id),
+    );
+
+    for (const target of targets) {
       if (brutePenetrate(ns, target.id)) {
         success.push(target);
       }

@@ -1,5 +1,4 @@
-import { NS, ReactNode, Server } from '@ns';
-import React from 'lib/react';
+import { NS } from '@ns';
 
 export interface PrintRows {
   title?: string;
@@ -45,12 +44,6 @@ export function maxColumnLengths(rows: PrintRows[]) {
   return columnsMaxLength;
 }
 
-export function generateRow_old(row: PrintRows, columnsMaxLength: number[], settings: PrintTableSettings) {
-  const _settings = defaultSettings(settings);
-
-  const columns = row.columns.map((col, i) => fillSpaces(col.value.toString(), columnsMaxLength[i], col.rightAlligned));
-  return [addSpaces(_settings.padding), ...columns].join('  ');
-}
 
 export function generateRow(row: PrintRows, columnsMaxLength: number[], settings: PrintTableSettings) {
   const _settings = defaultSettings(settings);
@@ -83,59 +76,6 @@ export function generateRowStrings(ns: NS, rows: PrintRows[], settings: PrintTab
     header: [addSpaces(_settings.padding), ...headers].join('  '),
     lines,
   };
-}
-
-export function asSpan(text: string, color: string = 'white') {
-  return React.createElement('span', { style: { color } }, text);
-}
-
-export function asSpanBold(text: string, color: string = 'white') {
-  return React.createElement('span', { style: { color, fontWeight: 600 } }, text);
-}
-
-// --------------------------------
-
-export function printTerminalRow(ns: NS, rows: PrintRows[], settings: PrintTableSettings) {
-  const _settings = defaultSettings(settings);
-  const columnsMaxLength = maxColumnLengths(rows);
-  const header = generateRowHeader(rows[0], columnsMaxLength, settings);
-
-  ns.tprintRaw(_settings.fancy ? asSpanBold(header, 'white') : header);
-
-  rows.forEach((row) => {
-    const content = generateRow(row, columnsMaxLength, settings);
-    ns.tprintRaw(_settings.fancy ? asSpan(content, row.color) : content);
-  });
-}
-
-export function printTerminalTable(ns: NS, header: string, rows: PrintRows[], settings?: PrintTableSettings) {
-  const _settings = defaultSettings(settings);
-  if (header && header.length > 0) {
-    ns.tprintRaw('\n');
-    ns.tprintRaw(addSpaces(_settings.padding) + header);
-    ns.tprintRaw(addSpaces(_settings.padding) + '---------');
-  }
-
-  printTerminalRow(ns, rows, _settings);
-
-  if (header && header.length > 0) {
-    ns.tprintRaw(addSpaces(_settings.padding) + '---------');
-  }
-}
-
-export function printTableRow(ns: NS, rows: PrintRows[], settings: PrintTableSettings) {
-  const _settings = defaultSettings(settings);
-  const columnsMaxLength = maxColumnLengths(rows);
-  const header = generateRowHeader(rows[0], columnsMaxLength, settings);
-  const iconSpace = rows.some((s) => s.icon) ? 3 : 0;
-
-  ns.printRaw(_settings.fancy ? asSpanBold(addSpaces(iconSpace) + header, 'white') : header);
-
-  rows.forEach((row) => {
-    const content = generateRow(row, columnsMaxLength, settings);
-    const icon = row.icon ? asSpan(` ${row.icon} `, row.iconColor) : addSpaces(iconSpace) + '';
-    ns.printRaw([icon, _settings.fancy ? asSpan(content, row.color) : content]);
-  });
 }
 
 export function printTableRowCheap(ns: NS, rows: PrintRows[], settings: PrintTableSettings) {

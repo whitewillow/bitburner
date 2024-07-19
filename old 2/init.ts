@@ -1,13 +1,7 @@
 import { NS } from '@ns';
 import XServer from 'lib/class.xserver';
 import { getBotNodesDetailed } from 'lib/lib.node';
-import { brutePenetrate, deployFiles, deployProto, deployProtoAct } from 'lib/utils';
-
-
-/**
- * Init script - that tries to initialize the some scripts for at starting new run
- * @param ns 
- */
+import { brutePenetrate } from 'lib/utils';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
@@ -17,15 +11,12 @@ export async function main(ns: NS): Promise<void> {
   await ns.sleep(500);
   ns.tprint('Level: ' + level);
 
-  
-
   async function prepAndWait(host: string) {
     ns.run('x.proto.prep.js', 1, host);
     await ns.sleep(500);
     ns.tprint('- Starting: prepping ' + host);
     while (true) {
       const firstAttack = new XServer(ns, host);
-      console.log('Prepping', host,firstAttack.moneyAvailablePercent,  firstAttack.isMoneyAvailableMaxed, firstAttack.isServerWeakendToMinimum);
       if (firstAttack.isMoneyAvailableMaxed && firstAttack.isServerWeakendToMinimum) {
         break;
       }
@@ -34,12 +25,10 @@ export async function main(ns: NS): Promise<void> {
   }
 
   async function cheapPrepAndWait(host: string) {
-    const isExecuted = ns.run('x.proto.prep.js', 1, host);
-    console.log('isExecuted', isExecuted);
+    ns.run('x.proto.prep.js', 1, host);
     await ns.sleep(500);
     ns.tprint('- Starting: cheap prepping ' + host);
     while (true) {
-      console.log('Sec for', host , ns.getServerMoneyAvailable(host), ns.getServerMaxMoney(host));
       const monyMaxed = ns.getServerMoneyAvailable(host) === ns.getServerMaxMoney(host);
       const weakend = ns.getServerSecurityLevel(host) ===  ns.getServerMinSecurityLevel(host);
       if (monyMaxed && weakend) {

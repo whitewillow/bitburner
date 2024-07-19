@@ -1,5 +1,6 @@
 import { NS } from '@ns';
 import { PrintRows, PrintTable } from 'lib/lib.print';
+import { getSimpleProtoBatch } from 'lib/lib.batch';
 
 export async function main(ns: NS): Promise<void> {
   ns.tprint('Hello Remote API!');
@@ -8,6 +9,8 @@ export async function main(ns: NS): Promise<void> {
   localStorage.setItem('test', 'test');
 
   const test = localStorage.getItem('test');
+
+  console.log(getSimpleProtoBatch(ns, 'n00dles'))
 
   ns.tprint('test: ' + test);
 

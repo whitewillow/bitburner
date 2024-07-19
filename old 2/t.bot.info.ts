@@ -6,6 +6,8 @@ import { NS } from '@ns';
 import { PrintRows, printTerminalTable } from 'lib/lib.print';
 import {
   getBotNodesDetailed,
+  getExternalBotNodesDetailed,
+  getServerNodesDetailed,
 } from 'lib/lib.node';
 import XServer from './lib/class.xserver';
 
@@ -48,11 +50,11 @@ export async function main(ns: NS): Promise<void> {
   }
 
   const botServers = getBotNodesDetailed(ns);
-  // const externalBotServers = getExternalBotNodesDetailed(ns);
+  const externalBotServers = getExternalBotNodesDetailed(ns);
   const botServersRows = generateRow(botServers);
-  // const externalBotServersRows = generateRow(externalBotServers);
+  const externalBotServersRows = generateRow(externalBotServers);
 
   printTerminalTable(ns, 'Bots', botServersRows);
 
-  // printTerminalTable(ns, 'External Bots', externalBotServersRows);
+  printTerminalTable(ns, 'External Bots', externalBotServersRows);
 }

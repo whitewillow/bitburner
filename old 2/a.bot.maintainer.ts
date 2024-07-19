@@ -1,12 +1,10 @@
 import { NS } from '@ns';
-import { deployProtoAct, range } from 'lib/utils';
+import { deployProto, deployProtoAct, range } from 'lib/utils';
 import { SERVER_PREFIX } from 'lib/constants';
 import { getBotNodesDetailed } from 'lib/lib.node';
 
 /**
  * Auto - Bots Maintainer - buys and upgrades servers
- * Bot can only be bought through scripts
- * Bots are extra Servers that can be used to run scripts
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {
@@ -50,8 +48,6 @@ export async function main(ns: NS): Promise<void> {
     // console.log('purchaseServer');
     ns.purchaseServer(host, purchaseRamSize);
   }
-
-  ns.tail();
 
   /**
    * Main loop

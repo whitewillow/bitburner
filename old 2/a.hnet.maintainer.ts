@@ -3,7 +3,6 @@ import { range } from './lib/utils';
 
 /**
  * Auto - HackNet Maintainer - buys and upgrades HackNet Nodes
- * See HackNet Description inGame
  * @param ns
  */
 export async function main(ns: NS): Promise<void> {

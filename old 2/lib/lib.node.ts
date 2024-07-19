@@ -2,18 +2,44 @@ import { NS } from '@ns';
 import XServer from 'lib/class.xserver';
 import { SERVER_PREFIX } from 'lib/constants';
 import { atLeastOne, canHack, range, sortField } from 'lib/utils';
-import { SimpleNode, ThreatAssesment } from './types';
+
+export interface SimpleNode {
+  node: string;
+  maxMoney: number;
+  moneyAvailable: number;
+  hackChance: number;
+  reqHackLevel: number;
+  isHackable: boolean;
+  parent: string;
+}
+
+export interface ThreatAssesment {
+  target: XServer;
+  hackChance: number;
+  moneyAvailable: number;
+  moneyMax: number;
+  minSecurityLevel: number;
+  moneyString: string;
+  moneyPercentAvailable: number;
+  hackTime: number;
+  hackThread: number;
+  growTime: number;
+  growThread: number;
+  weakenTime: number;
+  weakenThread: number;
+  isPrepped?: boolean;
+}
 
 export function getNodesWithParent(ns: NS, current = 'home', scanNodes: Array<{ parent: string; node: string }> = []) {
-  const connectedNodes = ns.scan(current).map((m) => ({ parent: current, node: m }));
-  const knownNodes = scanNodes.map((m) => m.node);
-  const nextNodes = connectedNodes.filter((f) => !knownNodes.includes(f.node));
+  let connectedNodes = ns.scan(current).map((m) => ({ parent: current, node: m }));
 
+  const knownNodes = scanNodes.map((m) => m.node);
+
+  let nextNodes = connectedNodes.filter((f) => !knownNodes.includes(f.node));
   nextNodes.forEach((f) => {
     scanNodes.push(f);
     return getNodesWithParent(ns, f.node, scanNodes);
   });
-
   return scanNodes.reduce(
     (unique, item) => (unique.some((s) => s.node === item.node) ? unique : [...unique, item]),
     [] as Array<{ parent: string; node: string }>,
@@ -69,11 +95,6 @@ export function getExternalBotNodesDetailed(ns: NS): XServer[] {
 
 export function getBotNodesRange(ns: NS, from: number, to: number) {
   return getBotNodesDetailed(ns).slice(from, to);
-}
-
-export function getAvailableNodes(ns: NS): XServer[] {
-  const availableNodes = getExternalBotNodesDetailed(ns).filter((f) => f.ram.used === 0);
-  return availableNodes;
 }
 
 export function getThreatAssesment(ns: NS, target: XServer): ThreatAssesment {

@@ -1,7 +1,8 @@
 import { FilenameOrPID, NS } from '@ns';
+import { executeCommands, getPreppingBatch, getProtoBatch } from 'lib/lib.batch';
 import XServer from 'lib/class.xserver';
 import { getHackableNodes, getThreatAssesment } from 'lib/lib.node';
-import { PrintTable } from 'lib/lib.printcheap';
+import { PrintRows, PrintTable } from 'lib/lib.print';
 import { generatePrepRow } from 'lib/lib.print.prep';
 
 interface Attack {
@@ -12,12 +13,13 @@ interface Attack {
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.clearLog();
-  ns.tail();
-
+  
   const fromHackChance = Number(ns.args[0] ?? 50);
   const MAX_PREPS = Number(ns.args[1] ?? 3);
   const MAX_ATTACKS = Number(ns.args[1] ?? 3);
   let i = 0;
+
+  
 
   let readyForAttack: string[] = [];
   let currentlyPrepping: string[] = [];

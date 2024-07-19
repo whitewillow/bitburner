@@ -1,6 +1,6 @@
+import { ThreatAssesment } from 'lib/lib.node';
 import { PrintRows } from 'lib/lib.print';
 import { calculatePercent } from 'lib/utils';
-import { ThreatAssesment } from './types';
 
 const iconAttack = '☠';
 const iconPrep = '🛠';

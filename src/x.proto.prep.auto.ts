@@ -1,7 +1,13 @@
 import { NS } from '@ns';
-import { executeCommands, getPreppingBatch } from 'lib/lib.batch';
+import { executeCommands, getPreppingBatch, getSimplePreppingBatch, maxCommandRamCost } from 'lib/lib.batch';
 import XServer from 'lib/class.xserver';
-import { getBotNodesRange } from 'lib/lib.node';
+import { getAvailableNodes, getBotNodesRange } from 'lib/lib.node';
+
+/**
+ * Prepper script
+ * Calls bot servers to prep a target
+ * @param ns
+ */
 
 export async function main(ns: NS): Promise<void> {
   const target = ns.args[0]?.toString() ?? 'n00dles';
@@ -11,8 +17,19 @@ export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.printRaw(['Starting Prepping Target: ', target]);
 
-  const listCommands = getPreppingBatch(ns, target);
-  const totalScriptCost = listCommands.reduce((acc, cur) => acc + cur.ramOverride * cur.threads, 0);
+  // Mainly for bots with 32 or more threads
+  const listCommandsAdvanced = getPreppingBatch(ns, target);
+  const listCommandsSimple = getSimplePreppingBatch(ns, target);
+
+  const ramRequiredForSimple = maxCommandRamCost(ns, listCommandsSimple);
+  const ramRequiredForAdvanced = maxCommandRamCost(ns, listCommandsAdvanced);
+
+  function commandsToUse(bot: XServer) {
+    return bot.ram.max >= 32 ? listCommandsAdvanced : listCommandsSimple;
+  }
+  function ramRequired(bot: XServer) {
+    return bot.ram.max >= 32 ? ramRequiredForAdvanced : ramRequiredForSimple;
+  }
 
   let i = 0;
   while (true) {
@@ -26,12 +43,14 @@ export async function main(ns: NS): Promise<void> {
     }
 
     const botServers = getBotNodesRange(ns, fromServer, toServer);
-    for (const bot of botServers) {
-      if (bot.ram.free < totalScriptCost) {
+    const availableNodes = getAvailableNodes(ns);
+    for (const bot of [...botServers, ...availableNodes]) {
+      if (bot.ram.free < ramRequired(bot)) {
+        // No more free ram - we wait
         await ns.sleep(1000);
         continue;
       }
-      executeCommands(ns, listCommands, bot.id, target);
+      executeCommands(ns, commandsToUse(bot), bot.id, target);
     }
     i++;
     ns.print(`PrepBatch ${i} completed`);

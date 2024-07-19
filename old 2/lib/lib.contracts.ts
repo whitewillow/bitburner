@@ -255,37 +255,35 @@ export function maxProfit(stockPrices: number[]): number {
   return maxProfit;
 }
 
-
 /**
- * 
+ *
  * Merge Overlapping Intervals
- * You are attempting to solve a Coding Contract. You have 15 tries remaining, 
+ * You are attempting to solve a Coding Contract. You have 15 tries remaining,
  * after which the contract will self-destruct.
- * 
- * 
- * Given the following array of arrays of numbers representing a list of intervals, 
+ *
+ *
+ * Given the following array of arrays of numbers representing a list of intervals,
  * merge all overlapping intervals.
- * 
+ *
  * [[13,18],[8,18],[3,7],[7,9],[5,13],[9,12],[14,23],[16,19],[20,28],[16,21],[7,9],[9,10],[4,14],[1,4],[5,8],[1,10],[9,17],[1,6]]
- * 
+ *
  * Example:
- * 
+ *
  * [[1, 3], [8, 10], [2, 6], [10, 16]]
- * 
+ *
  * would merge into [[1, 6], [8, 16]].
- * 
- * The intervals must be returned in ASCENDING order. 
+ *
+ * The intervals must be returned in ASCENDING order.
  * You can assume that in an interval, the first number will always be smaller than the second.
- * 
+ *
  * [[1, 3], [8, 10], [2, 6], [10, 16]]
- * 
+ *
  * 1-3 colludes with 2-6 -> 1-6
  * 8-10 colludes with 10-16 -> 8-16
- * 
+ *
  */
 
 export function mergeOverlappingIntervals(intervals: number[][]): string {
-
   const sorted = intervals.sort((a, b) => a[0] - b[0]);
   const result: number[][] = [];
 
@@ -302,29 +300,100 @@ export function mergeOverlappingIntervals(intervals: number[][]): string {
   result.push(previous);
 
   return JSON.stringify(result);
-
 }
-
 
 /**
  * Total Ways to Sum
- * You are attempting to solve a Coding Contract. You have 10 tries remaining, 
+ * You are attempting to solve a Coding Contract. You have 10 tries remaining,
  * after which the contract will self-destruct.
- * 
- * 
+ *
+ *
  * It is possible write four as a sum in exactly four different ways:
- * 
+ *
  *     3 + 1
  *     2 + 2
  *     2 + 1 + 1
  *     1 + 1 + 1 + 1
- * 
- * How many different distinct ways can the number 39 be written as a sum of at 
+ *
+ * How many different distinct ways can the number 39 be written as a sum of at
  * least two positive integers?
  */
 
 export function totalWaysToSum(inputNumber: number): number {
-  
-
   return 0;
 }
+
+/**
+ * Minimum Path Sum in a Triangle
+ * You are attempting to solve a Coding Contract. You have 10 tries remaining,
+ * after which the contract will self-destruct.
+ *
+ *
+ * Given a triangle, find the minimum path sum from top to bottom.
+ * In each step of the path, you may only move to adjacent numbers in the row below.
+ * The triangle is represented as a 2D array of numbers:
+ *
+ * [
+ *       [6],
+ *      [9,8],
+ *     [2,8,9],
+ *    [3,1,7,5],
+ *   [4,3,8,2,4]
+ * ]
+ *
+ * Example: If you are given the following triangle:
+ *
+ * [
+ *      [2],        
+ *     [3,4],    
+ *    [6,5,7],   
+ *   [4,1,8,3]   
+ * ]            
+ *
+ *
+ * The minimum path sum is 11 (2 -> 3 -> 5 -> 1).
+ *
+ */
+export function minimumPathSumInTriangle(triangle: number[][]): number {
+  function traverse(tmpTriangle: number[][], iteration: number, column: number) {
+    if (iteration === tmpTriangle.length) {
+      return 0;
+    }
+    // Current row
+    const current: number = tmpTriangle[iteration][column];
+    // Next row and adjacent column
+    const min: number =
+      current + Math.min(traverse(tmpTriangle, iteration + 1, column), traverse(triangle, iteration + 1, column + 1));
+    return min;
+  }
+
+  return traverse(triangle, 0, 0);
+}
+
+
+/**
+ * Sanitize Parentheses in Expression
+ * You are attempting to solve a Coding Contract. You have 10 tries remaining, after which the contract will self-destruct.
+ * 
+ * 
+ * Given the following string:
+ * 
+ * (a)))()a((())(aa
+ * 
+ * remove the minimum number of invalid parentheses in order to validate the string. 
+ * If there are multiple minimal ways to validate the string, provide all of the possible results. 
+ * The answer should be provided as an array of strings. 
+ * If it is impossible to validate the string the result should be an array with only an empty string.
+ * 
+ * IMPORTANT: The string may contain letters, not just parentheses. Examples:
+ * "()())()" -> ["()()()", "(())()"]
+ * "(a)())()" -> ["(a)()()", "(a())()"]
+ * ")(" -> [""]
+ */
+export function sanitizeParantheses(input: string): string[] {
+  return [];
+}
+
+// (a)))()a((())(aa
+
+// ["(a)()a(())aa", "(((a)))()a((()))(aa)", "(((a)))()a((())(aa))"]

@@ -1,5 +1,4 @@
 import { FilenameOrPID, NS } from '@ns';
-import { ProtoBatchCommands, ThreadSequence } from './types';
 
 /**
  * Proto Batch Lib
@@ -15,6 +14,30 @@ export const HACK_PERCENTAGE = 0.1; // 0.05 | 0.001
 export const HACK_SCRIPT_RAM = 1.7;
 export const WEAKEN_SCRIPT_RAM = 1.75;
 export const GROW_SCRIPT_RAM = 1.75;
+
+export interface ThreadSequence {
+  hackThreads: number;
+  hackAmount: number;
+  weaken1Threads: number;
+  growThreads: number;
+  weaken2Threads: number;
+  totalThreads: number;
+}
+
+export interface PrepThreadSequence {
+  weaken1Threads: number;
+  growThreads: number;
+  weaken2Threads: number;
+  totalThreads: number;
+}
+
+export interface ProtoBatchCommands {
+  command: string;
+  ramOverride: number;
+  threads: number;
+  info: string;
+  delay: number;
+}
 
 /**
  *
@@ -188,40 +211,6 @@ export function getSimpleProtoBatch(
   ];
 }
 
-export function getSimplePreppingBatch(
-  ns: NS,
-  targerServer: string,
-  growthBaseThreads = 10,
-  weakenBaseThreads = 1,
-): ProtoBatchCommands[] {
-  const sequence = ['w', 'g', 'w'];
-  const [w_delay, g_delay, w2_delay] = getDelays(ns, sequence, targerServer);
-
-  return [
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 1,
-      info: 'weaken',
-      delay: w_delay,
-    },
-    {
-      command: 'grow',
-      ramOverride: GROW_SCRIPT_RAM,
-      threads: 2,
-      info: 'grow',
-      delay: g_delay,
-    },
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 2,
-      info: 'weaken 2',
-      delay: w2_delay,
-    },
-  ];
-}
-
 export function getPreppingBatch(
   ns: NS,
   targerServer: string,
@@ -278,9 +267,4 @@ export function executeCommands(
     pids.push(pid);
   }
   return pids;
-}
-
-
-export function maxCommandRamCost(ns: NS, commands: ProtoBatchCommands[]): number {
-  return commands.reduce((acc, cur) => Math.max(acc, cur.ramOverride * cur.threads), 0);
 }
