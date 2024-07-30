@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import XServer from 'lib/class.xserver';
-import { getBotNodesDetailed } from 'lib/lib.node';
+import { getBotServers } from 'lib/lib.server';
 import { brutePenetrate, deployFiles, deployProto, deployProtoAct } from 'lib/utils';
 
 
@@ -52,7 +52,7 @@ export async function main(ns: NS): Promise<void> {
   async function waitForServersToGrow() {
     ns.tprint('- Waiting for servers to grow...');
     while (true) {
-      const bots = getBotNodesDetailed(ns);
+      const bots = getBotServers(ns);
       const currentMinRam = bots.reduce((acc, cur) => Math.min(acc, cur.ram.trueMax), 999999);
       const currentMaxRam = bots.reduce((acc, cur) => Math.max(acc, cur.ram.trueMax), 0);
       if (bots.length >= 25 && bots.every((e) => e.ram.trueMax >= 64)) {

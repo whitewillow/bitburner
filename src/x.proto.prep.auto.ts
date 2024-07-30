@@ -1,7 +1,14 @@
 import { NS } from '@ns';
-import { executeCommands, getPreppingBatch, getSimplePreppingBatch, maxCommandRamCost } from 'lib/lib.batch';
+import {
+  executeCommands,
+  getPreppingBatch,
+  getSimplePreppingBatch,
+  maxCommandDelay,
+  maxCommandRamCost,
+} from 'lib/lib.batch';
 import XServer from 'lib/class.xserver';
-import { getAvailableNodes, getBotNodesRange } from 'lib/lib.node';
+import { getBotServersRange, getTargetServers } from 'lib/lib.server';
+import { addStateCurrentlyPrepping, removeStateCurrentlyPrepping } from './lib/state.prep';
 
 /**
  * Prepper script
@@ -16,6 +23,7 @@ export async function main(ns: NS): Promise<void> {
 
   ns.disableLog('ALL');
   ns.printRaw(['Starting Prepping Target: ', target]);
+  addStateCurrentlyPrepping(ns, target);
 
   // Mainly for bots with 32 or more threads
   const listCommandsAdvanced = getPreppingBatch(ns, target);
@@ -25,32 +33,44 @@ export async function main(ns: NS): Promise<void> {
   const ramRequiredForAdvanced = maxCommandRamCost(ns, listCommandsAdvanced);
 
   function commandsToUse(bot: XServer) {
-    return bot.ram.max >= 32 ? listCommandsAdvanced : listCommandsSimple;
+    return bot.ram.max >= ramRequiredForAdvanced ? listCommandsAdvanced : listCommandsSimple;
   }
+
   function ramRequired(bot: XServer) {
-    return bot.ram.max >= 32 ? ramRequiredForAdvanced : ramRequiredForSimple;
+    return bot.ram.max >= ramRequiredForAdvanced ? ramRequiredForAdvanced : ramRequiredForSimple;
+  }
+
+  function getAvailableNodes(): XServer[] {
+    const availableNodes = getTargetServers(ns).filter((f) => f.ram.used === 0);
+    return availableNodes;
   }
 
   let i = 0;
   while (true) {
-    await ns.sleep(200);
+    await ns.sleep(20);
 
     const targetServer = new XServer(ns, target);
 
     if (targetServer.isMoneyAvailableMaxed && targetServer.isServerWeakendToMinimum) {
       ns.print(`Prepping completed!`);
+      removeStateCurrentlyPrepping(ns, target);
       break;
     }
 
-    const botServers = getBotNodesRange(ns, fromServer, toServer);
-    const availableNodes = getAvailableNodes(ns);
+    const botServers = toServer === 0 ? [] : getBotServersRange(ns, fromServer, toServer);
+    const availableNodes = getAvailableNodes();
     for (const bot of [...botServers, ...availableNodes]) {
       if (bot.ram.free < ramRequired(bot)) {
-        // No more free ram - we wait
-        await ns.sleep(1000);
+        // No more free ram - skip to next bot
         continue;
       }
-      executeCommands(ns, commandsToUse(bot), bot.id, target);
+      const commands = commandsToUse(bot);
+      
+      executeCommands(ns, commands, bot.id, target);
+
+      // Must delay between commands
+      // so batch can catch up - This should be a dealy between commands
+      await ns.sleep(40);
     }
     i++;
     ns.print(`PrepBatch ${i} completed`);

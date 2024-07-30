@@ -186,26 +186,79 @@ export function assign2ColoringGraph(input: [number, number[][]]): number[] {
 
 /**
  * HammingCodes: Integer to Encoded Binary
- * You are given the following decimal Value:
- * 6220614038587
- * Convert it to a binary representation and encode it as an 'extended Hamming code'. Eg:
- * Value 8 is expressed in binary as '1000', which will be encoded with the pattern 'pppdpddd', where p is a parity bit and d a data bit. The encoding of
- * 8 is 11110000. As another example, '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
- * The answer should be given as a string containing only 1s and 0s.
- * NOTE: the endianness of the data bits is reversed in relation to the endianness of the parity bits.
- * NOTE: The bit at index zero is the overall parity bit, this should be set last.
- * NOTE 2: You should watch the Hamming Code video from 3Blue1Brown, which explains the 'rule' of encoding, including the first index parity bit mentioned in the previous note.
+ * You are attempting to solve a Coding Contract. You have 10 tries remaining, after which the contract will self-destruct.
  *
- * Extra rule for encoding:
- * There should be no leading zeros in the 'data bit' section
+ *
+ * You are given the following decimal value:
+ * 5809209738033454
+ *
+ * Convert it to a binary representation and encode it as an 'extended Hamming code'.
+ * The number should be converted to a string of '0' and '1' with no leading zeroes.
+ * Parity bits are inserted at positions 0 and 2^N.
+ * Parity bits are used to make the total number of '1' bits in a given set of data even.
+ * The parity bit at position 0 considers all bits including parity bits.
+ * Each parity bit at position 2^N alternately considers N bits then ignores N bits, starting at position 2^N.
+ * The endianness of the parity bits is reversed compared to the endianness of the data bits:
+ * Data bits are encoded most significant bit first and the parity bits encoded least significant bit first.
+ * The parity bit at position 0 is set last.
+ *
+ * Examples:
+ * 8 in binary is 1000, and encodes to 11110000 (pppdpddd - where p is a parity bit and d is a data bit)
+ * 21 in binary is 10101, and encodes to 1001101011 (pppdpdddpd)
+ *
+ * For more information on the 'rule' of encoding, refer to Wikipedia (https://wikipedia.org/wiki/Hamming_code) or the 3Blue1Brown videos on Hamming Codes. (https://youtube.com/watch?v=X8jsijhllIA)
+ *
+ *
+ * If your solution is an empty string, you must leave the text box empty. Do not use "", '', or ``.
  *
  * https://en.wikipedia.org/wiki/Hamming_code
  * https://www.youtube.com/watch?v=X8jsijhllIA
  *
  */
-export function hammingCode(input: number): string {
-  // TODO: Implement
-  return '';
+export function hammingCodesIntegerToEncodedBinary(input: number): string {
+  const data = input
+    .toString(2)
+    .split(``)
+    .map((b) => Number.parseInt(b));
+
+  let numParityBits = 0;
+  while (Math.pow(2, numParityBits) < numParityBits + data.length + 1) {
+    numParityBits++;
+  }
+
+  const encoding = Array<number>(numParityBits + data.length + 1).fill(0);
+  const parityBits: number[] = [];
+  // TODO: populate parityBits with 2^x for x in range 0 to (numParityBits - 1), then
+  //       the below calcualtion go away in favor of `if (i in parityBits) continue;
+  for (let i = 1; i < encoding.length; i++) {
+    const pow = Math.log2(i);
+    if (pow - Math.floor(pow) === 0) {
+      parityBits.push(i);
+      continue;
+    }
+
+    encoding[i] = data.shift() as number;
+  }
+
+  const parity = encoding.reduce((total, bit, index) => (total ^= bit > 0 ? index : 0), 0);
+  const parityVals = parity
+    .toString(2)
+    .split(``)
+    .map((b) => Number.parseInt(b))
+    .reverse();
+  while (parityVals.length < parityBits.length) {
+    parityVals.push(0);
+  }
+
+  for (let i = 0; i < parityBits.length; i++) {
+    encoding[parityBits[i]] = parityVals[i];
+  }
+
+  const globalParity = (encoding.toString().split(`1`).length - 1) % 2 === 0 ? 0 : 1;
+  encoding[0] = globalParity;
+
+  const answer = encoding.reduce((total, bit) => (total += bit), ``);
+  return answer;
 }
 
 /**
@@ -318,9 +371,21 @@ export function mergeOverlappingIntervals(intervals: number[][]): string {
  * How many different distinct ways can the number 39 be written as a sum of at
  * least two positive integers?
  */
-
 export function totalWaysToSum(inputNumber: number): number {
-  return 0;
+  function countWays(n: number, m: number): number {
+    if (n === 0) {
+      return 1;
+    }
+    if (n < 0) {
+      return 0;
+    }
+    if (m <= 0 && n >= 1) {
+      return 0;
+    }
+    return countWays(n, m - 1) + countWays(n - m, m);
+  }
+
+  return countWays(inputNumber, inputNumber - 1);
 }
 
 /**
@@ -344,11 +409,11 @@ export function totalWaysToSum(inputNumber: number): number {
  * Example: If you are given the following triangle:
  *
  * [
- *      [2],        
- *     [3,4],    
- *    [6,5,7],   
- *   [4,1,8,3]   
- * ]            
+ *      [2],
+ *     [3,4],
+ *    [6,5,7],
+ *   [4,1,8,3]
+ * ]
  *
  *
  * The minimum path sum is 11 (2 -> 3 -> 5 -> 1).
@@ -370,21 +435,20 @@ export function minimumPathSumInTriangle(triangle: number[][]): number {
   return traverse(triangle, 0, 0);
 }
 
-
 /**
  * Sanitize Parentheses in Expression
  * You are attempting to solve a Coding Contract. You have 10 tries remaining, after which the contract will self-destruct.
- * 
- * 
+ *
+ *
  * Given the following string:
- * 
+ *
  * (a)))()a((())(aa
- * 
- * remove the minimum number of invalid parentheses in order to validate the string. 
- * If there are multiple minimal ways to validate the string, provide all of the possible results. 
- * The answer should be provided as an array of strings. 
+ *
+ * remove the minimum number of invalid parentheses in order to validate the string.
+ * If there are multiple minimal ways to validate the string, provide all of the possible results.
+ * The answer should be provided as an array of strings.
  * If it is impossible to validate the string the result should be an array with only an empty string.
- * 
+ *
  * IMPORTANT: The string may contain letters, not just parentheses. Examples:
  * "()())()" -> ["()()()", "(())()"]
  * "(a)())()" -> ["(a)()()", "(a())()"]
@@ -397,3 +461,171 @@ export function sanitizeParantheses(input: string): string[] {
 // (a)))()a((())(aa
 
 // ["(a)()a(())aa", "(((a)))()a((()))(aa)", "(((a)))()a((())(aa))"]
+
+/**
+ * Array Jumping Game II
+ * You are attempting to solve a Coding Contract.
+ * You have 3 tries remaining, after which the contract will self-destruct.
+ *
+ *
+ * You are given the following array of integers:
+ *
+ * 3,0,5,1,1,5,4,3,0,0,2,3 = 4
+ *
+ * Each element in the array represents your MAXIMUM jump length at that position.
+ * This means that if you are at position i and your maximum jump length is n, you can
+ * jump to any position from i to i+n.
+ *
+ * Assuming you are initially positioned at the start of the array, determine the
+ * minimum number of jumps to reach the end of the array.
+ *
+ * If it's impossible to reach the end, then the answer should be 0.
+ *
+ *
+ * If your solution is an empty string, you must leave the text box empty.
+ * Do not use "", '', or ``.
+ */
+
+export function arrayJumpingGame2() {
+  // TODO: Implement
+
+  return 0;
+}
+/**
+ * Shortest Path in a Grid
+ * You are attempting to solve a Coding Contract.
+ * You have 10 tries remaining, after which the contract will self-destruct.
+ *
+ *
+ * You are located in the top-left corner of the following grid:
+ *
+ *   [[0,0,0,0,0,0,1,0,1,0],
+ *    [0,0,1,1,1,1,1,0,0,1],
+ *    [0,0,0,0,0,0,0,1,0,0],
+ *    [1,0,0,1,1,0,0,1,0,0],
+ *    [0,0,0,0,1,0,0,0,1,0],
+ *    [1,1,0,0,0,0,0,0,0,0]]
+ *
+ * Answar: 'RDDRRRRRDDDRRR'
+ *
+ * You are trying to find the shortest path to the bottom-right corner of the grid,
+ * but there are obstacles on the grid that you cannot move onto. These obstacles
+ * are denoted by '1', while empty spaces are denoted by 0.
+ *
+ * Determine the shortest path from start to finish, if one exists.
+ * The answer should be given as a string of UDLR characters,
+ * indicating the moves along the path
+ *
+ * NOTE: If there are multiple equally short paths, any of them is accepted as answer.
+ * If there is no path, the answer should be an empty string.
+ *
+ * NOTE: The data returned for this contract is an 2D array of numbers
+ * representing the grid.
+ *
+ * Examples:
+ *
+ *     [[0,1,0,0,0],
+ *      [0,0,0,1,0]]
+ *
+ * Answer: 'DRRURRD'
+ *
+ *     [[0,1],
+ *      [1,0]]
+ *
+ * Answer: ''
+ *
+ *
+ * If your solution is an empty string, you must leave the text box empty.
+ * Do not use "", '', or ``.
+ *  */
+export function shortestPathInAGrid(grid: number[][]): string {
+  const WALL = 1;
+  const PATH = 0;
+  const directions = ['U', 'D', 'L', 'R'];
+  const start = [0, 0];
+  const end = [grid.length - 1, grid[0].length - 1];
+  const rows = grid.length;
+  const cols = grid[0].length;
+
+  // for(let row = 0; row < rows; row++) {
+  //   for(let col = 0; col < cols; col++) {
+  //     if(grid[row][col] === WALL) {
+  //       grid[row][col] = -1;
+  //     }
+
+  //   }
+  // }
+  return '';
+}
+
+/**
+ * Encryption I: Caesar Cipher
+ * You are attempting to solve a Coding Contract. You have 10 tries remaining, after which the contract will self-destruct.
+ *
+ *
+ * Caesar cipher is one of the simplest encryption technique. It is a type of substitution cipher in which each letter in the plaintext is replaced by a letter some fixed number of positions down the alphabet. For example, with a left shift of 3, D would be replaced by A, E would become B, and A would become X (because of rotation).
+ *
+ * You are given an array with two elements:
+ *   ["MEDIA LOGIC ARRAY PRINT TRASH", 14]
+ *
+ *   Result: YQPUM XASUO MDDMK BDUZF FDMET
+ * The first element is the plaintext, the second element is the left shift value.
+ *
+ * Return the ciphertext as uppercase string. Spaces remains the same.
+ *
+ *
+ * If your solution is an empty string, you must leave the text box empty. Do not use "", '', or ``.
+ */
+export function encryption1CaesarCipher(input: [string, number]): string {
+  const [plaintext, shift] = input;
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+
+  function getCipher(char: string, shift: number): string {
+    const index = alphabet.indexOf(char.toUpperCase());
+    const newIndex = index - shift;
+    if (newIndex < 0) {
+      return alphabet[alphabet.length + newIndex];
+    }
+    return alphabet[newIndex];
+  }
+
+  for (let i = 0; i < plaintext.length; i++) {
+    const char = plaintext[i];
+    if (char === ' ') {
+      result += ' ';
+      continue;
+    }
+
+    result += getCipher(char, shift);
+  }
+  return result;
+}
+
+
+/**
+ * Unique Paths in a Grid I
+ * You are attempting to solve a Coding Contract. You have 9 tries remaining, after which the contract will self-destruct.
+ * 
+ * 
+ * You are in a grid with 2 rows and 4 columns, and you are positioned in the top-left corner of that grid. You are trying to reach the bottom-right corner of the grid, but you can only move down or right on each step. Determine how many unique paths there are from start to finish.
+ * 
+ * NOTE: The data returned for this contract is an array with the number of rows and columns:
+ * 
+ * [2, 4]
+ * 
+ * 
+ * If your solution is an empty string, you must leave the text box empty. Do not use "", '', or ``.
+ */
+export function uniquePathsInGrid1(grid: number[]): number {
+  const [rows, cols] = grid;
+  const dp = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 1));
+
+  for (let row = 1; row < rows; row++) {
+    for (let col = 1; col < cols; col++) {
+      dp[row][col] = dp[row - 1][col] + dp[row][col - 1];
+    }
+  }
+
+  return dp[rows - 1][cols - 1];
+}

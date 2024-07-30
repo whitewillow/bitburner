@@ -23,16 +23,6 @@ export interface ThreadSequence {
     info: string;
     delay: number;
   }
-
-  export interface SimpleNode {
-    node: string;
-    maxMoney: number;
-    moneyAvailable: number;
-    hackChance: number;
-    reqHackLevel: number;
-    isHackable: boolean;
-    parent: string;
-  }
   
   export interface ThreatAssesment {
     target: XServer;
@@ -42,6 +32,7 @@ export interface ThreadSequence {
     minSecurityLevel: number;
     moneyString: string;
     moneyPercentAvailable: number;
+    moneyPerSecond: number;
     hackTime: number;
     hackThread: number;
     growTime: number;

@@ -154,6 +154,6 @@ export function PrintTable(ns: NS, header: string, rows: PrintRows[], settings?:
   ns.printRaw('\n');
   ns.printRaw(addSpaces(_settings.padding) + header);
   ns.printRaw(addSpaces(_settings.padding) + '---------');
-  printTableRowCheap(ns, rows, _settings);
+  printTableRow(ns, rows, _settings);
   ns.printRaw(addSpaces(_settings.padding) + '---------');
 }

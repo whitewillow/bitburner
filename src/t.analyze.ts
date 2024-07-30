@@ -40,6 +40,3 @@ export async function main(ns: NS): Promise<void> {
     `);
 }
 
-// export function autocomplete(data, args) {
-//   return data.servers;
-// }

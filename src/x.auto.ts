@@ -1,7 +1,7 @@
 import { FilenameOrPID, NS } from '@ns';
 import XServer from 'lib/class.xserver';
-import { getHackableNodes, getThreatAssesment } from 'lib/lib.node';
-import { PrintTable } from 'lib/lib.printcheap';
+import { getBotServers, getTargetServers, getHackableTargetServers, getThreatAssesment } from 'lib/lib.server';
+import { PrintTable } from 'lib/lib.print';
 import { generatePrepRow } from 'lib/lib.print.prep';
 
 interface Attack {
@@ -17,16 +17,45 @@ export async function main(ns: NS): Promise<void> {
   const fromHackChance = Number(ns.args[0] ?? 50);
   const MAX_PREPS = Number(ns.args[1] ?? 3);
   const MAX_ATTACKS = Number(ns.args[1] ?? 3);
+  const ATTACK_HACKCHANCE_HIGHER_THAN = 90;
   let i = 0;
 
   let readyForAttack: string[] = [];
   let currentlyPrepping: string[] = [];
   let currentlyAttacking: Array<Attack> = [];
+  let availableBots: XServer[] = [];
+  let availableNodes: XServer[] = [];
+  let potentialTargets: XServer[] = [];
+
+  function getPrepBotStart() {
+    return 0;
+  }
+
+  function getPrepBotEnd() {
+    // No attack active - use all bots
+    if (currentlyAttacking.length === 0) {
+      return 25;
+    }
+
+    // Not many bots available - dont use bots for prepping
+    if (availableBots.length < 12) {
+      return 0;
+    }
+    return 7;
+  }
+
+  function getAttackBotStart() {
+    // Not many bots available - use all bots for attack
+    if (availableBots.length < 12) {
+      return 0;
+    }
+    return 7;
+  }
 
   function startNewPrepping(hackable: XServer[]) {
     const [target] = hackable;
     currentlyPrepping.push(target.id);
-    ns.run('x.proto.prep.auto.js', 1, target.id);
+    ns.run('x.proto.prep.auto.js', 1, target.id, getPrepBotStart(), getPrepBotEnd());
   }
 
   function getWaitingTargets() {
@@ -35,19 +64,34 @@ export async function main(ns: NS): Promise<void> {
 
   function checkPreppingStatus() {
     const serverDonePrepping = getWaitingTargets().filter((f) => f.isMoneyAvailableMaxed && f.isServerWeakendToMinimum);
-    if (serverDonePrepping.length > 0) {
-      serverDonePrepping.forEach((f) => {
-        currentlyPrepping = currentlyPrepping.filter((m) => m !== f.id);
-        readyForAttack.push(f.id);
+    const otherReady = getHackableTargetServers(ns, fromHackChance).filter(
+      (f) =>
+        f.isMoneyAvailableMaxed &&
+        f.isServerWeakendToMinimum &&
+        !currentlyPrepping.includes(f.id) &&
+        !currentlyAttacking.map((m) => m.host).includes(f.id),
+    );
+    const readyNodes = [...serverDonePrepping, ...otherReady];
+    if (readyNodes.length > 0) {
+      readyNodes.forEach((item) => {
+        currentlyPrepping = currentlyPrepping.filter((m) => m !== item.id);
+        readyForAttack = [...readyForAttack.filter(f=>f !== item.id), item.id];
       });
     }
   }
 
   function printStatus() {
-    const nodes = getHackableNodes(ns, fromHackChance).map((m) => getThreatAssesment(ns, m));
+    const targerServers = getTargetServers(ns);
+    const nodes = getHackableTargetServers(ns, fromHackChance).map((m) => getThreatAssesment(ns, m));
     const underAttack = currentlyAttacking.map((m) => m.host);
     const rows = generatePrepRow(nodes, false, underAttack, currentlyPrepping);
     ns.clearLog();
+    ns.printRaw('Max Prepping: ' + MAX_PREPS);
+    ns.printRaw('Max Attacks: ' + MAX_ATTACKS);
+    ns.printRaw('Ready for Attack: ' + readyForAttack.length);
+    ns.printRaw('Currently Attack: ' + currentlyAttacking.length);
+    ns.printRaw(`Hackable Targets: ${nodes.length}/${targerServers.length}`);
+    ns.printRaw('Runs: ' + i);
     PrintTable(ns, 'Targets', rows, { fancy: true });
   }
 
@@ -63,7 +107,8 @@ export async function main(ns: NS): Promise<void> {
   function getPotentialTargets() {
     const underAttack = currentlyAttacking.map((m) => m.host);
     const potentialTargets = readyForAttack.filter((f) => !underAttack.includes(f)).map((m) => new XServer(ns, m));
-    return potentialTargets.filter((f) => f.hackChance > 90).sort(sortDescByMoneyAvailable);
+
+    return potentialTargets.filter((f) => f.hackChance >= ATTACK_HACKCHANCE_HIGHER_THAN).sort(sortDescByMoneyAvailable);
   }
 
   function startNewAttack() {
@@ -73,8 +118,9 @@ export async function main(ns: NS): Promise<void> {
       return;
     }
 
+
     const [target] = potentialTargets;
-    const pid = ns.run('x.proto.batch.auto.js', 1, target.id);
+    const pid = ns.run('x.proto.batch.auto.js', 1, target.id, getAttackBotStart());
     currentlyAttacking.push({ host: target.id, pid });
   }
 
@@ -99,10 +145,10 @@ export async function main(ns: NS): Promise<void> {
        * Just kill the those under max money
        * New attack will be generated next loop
        */
-      currentlyAttacking
-        .map((m) => new XServer(ns, m.host))
-        .filter((f) => (f.server.moneyMax ?? 0) < (target.server.moneyMax ?? 0))
-        .forEach((f) => killAndRemoveAttack(f.id));
+      // currentlyAttacking
+      //   .map((m) => new XServer(ns, m.host))
+      //   .filter((f) => (f.server.moneyMax ?? 0) < (target.server.moneyMax ?? 0))
+      //   .forEach((f) => killAndRemoveAttack(f.id));
     }
   }
 
@@ -116,7 +162,7 @@ export async function main(ns: NS): Promise<void> {
      * Out of sync
      */
 
-    const outOfSync = underAttack.filter((f) => f.moneyAvailablePercent < 30);
+    const outOfSync = underAttack.filter((f) => f.moneyAvailablePercent < 5);
     if (outOfSync.length > 0) {
       outOfSync.forEach((f) => killAndRemoveAttack(f.id));
     }
@@ -127,6 +173,8 @@ export async function main(ns: NS): Promise<void> {
   while (true) {
     await ns.sleep(1000);
 
+    availableBots = getBotServers(ns);
+    availableNodes = getTargetServers(ns);
     /**
      * Attack
      */
@@ -142,16 +190,16 @@ export async function main(ns: NS): Promise<void> {
     /**
      * Prepping
      */
+    checkPreppingStatus();
 
-    const readyForPrepping = getHackableNodes(ns, fromHackChance).filter(
+    const readyForPrepping = getHackableTargetServers(ns, fromHackChance).filter(
       (f) => !readyForAttack.includes(f.id) && !currentlyPrepping.includes(f.id),
     );
+    // console.log('readyForPrepping', readyForPrepping);
 
     if (readyForPrepping.length > 0 && currentlyPrepping.length < MAX_PREPS) {
       startNewPrepping(readyForPrepping);
     }
-
-    checkPreppingStatus();
 
     printStatus();
 

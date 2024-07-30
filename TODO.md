@@ -1,6 +1,87 @@
+# TODO - 29 Juli 2024
+
+
+## Optimize/Refak
+
+- Thread sequencer. could be better
+- prep auth delay before next bot. - maybe fixed amount of batches?
+- bot maintainer better logs
+
+## Play with Stocks
+
+## Contracts
+
+## Able to stop batch rubnbibg
+
+
+
+## Controller
+
+Should auto start scripts and show status
+
+run auto nuker
+run fixed hack on n00dles
+run fixed hack on foodnstuff
+run botnet maintainer
+run auto hacker (ignore n00dles & foodnstuff)
+
+Looks in state for what scripts to pause 
+
+### Controller selector
+
+Toggle scripts
+ #1 Auto Penetrator     Running
+ #2 Botnet Maintainer   Paused
+ #3 HNet Maintainer     Paused
+ #4 Contractor Solver   Running  
+ Toggle App Number > 4;
+
+
+### VIEW:
+
+Running Scripts
+_____________________________
+Penetrator
+Bot Maintainer (paused)
+HNet Maintainer (paused)
+Auto Batcher
+_____________________________
+
+Attacking:  [CSEC, joesguns, n00dles]
+Prepping:   [phantasy, neo-net]
+_____________________________
+
+Bots: 25 (1GB - 4GB)
+Hacknet: 30
+Found contracts: 11
+_____________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## TODO
 
-- Finish hacknet maintainer add ram and cores - make libs for functions
+- Finish hacknet maintainer add ram and coresmake libs for functions
 - Finis bot maintainer - make it like hacknet and add cores - make libs for functions
 
 

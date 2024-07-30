@@ -1,4 +1,4 @@
-import { FilenameOrPID, NS } from '@ns';
+import { FilenameOrPID, NS, Server } from '@ns';
 import { ProtoBatchCommands, ThreadSequence } from './types';
 
 /**
@@ -11,7 +11,7 @@ import { ProtoBatchCommands, ThreadSequence } from './types';
  */
 export const GROWTH_ADD_SECURITY_MULTIPLIER = 0.004; // 0.002 for each w2Thread
 export const HALF_GROWTH_ADD_SECURITY_MULTIPLIER = 0.002; // 0.002 for each w2Thread
-export const HACK_PERCENTAGE = 0.1; // 0.05 | 0.001
+export const HACK_PERCENTAGE = 0.05; // 0.1 | 0.05 | 0.001
 export const HACK_SCRIPT_RAM = 1.7;
 export const WEAKEN_SCRIPT_RAM = 1.75;
 export const GROW_SCRIPT_RAM = 1.75;
@@ -40,6 +40,7 @@ export function getDelays(ns: NS, sequence: string[], targetHost: string): numbe
     w: ns.getWeakenTime(targetHost),
     g: ns.getGrowTime(targetHost),
   };
+
 
   const baseTimes = sequence.map((_, i) => i + ATTACK_DELAY_MS * i);
 
@@ -280,7 +281,43 @@ export function executeCommands(
   return pids;
 }
 
-
 export function maxCommandRamCost(ns: NS, commands: ProtoBatchCommands[]): number {
   return commands.reduce((acc, cur) => Math.max(acc, cur.ramOverride * cur.threads), 0);
+}
+
+export function totalCommandRamCost(ns: NS, commands: ProtoBatchCommands[]): number {
+  return commands.reduce((acc, cur) => acc + cur.ramOverride * cur.threads, 0);
+}
+
+export function maxCommandDelay(ns: NS, commands: ProtoBatchCommands[]): number {
+  return commands.reduce((acc, cur) => Math.max(acc, cur.delay), 0);
+}
+
+/**
+ * Get the weight of a server
+ * @param ns
+ * @param host
+ * @returns
+ */
+export function getServerWeight(ns: NS, serverToWeight: Server): number {
+  // Get the player information
+  const server: Server = { ...serverToWeight };
+
+  // Set security to minimum on the server object (for Formula.exe functions)
+  server.hackDifficulty = server.minDifficulty;
+  const moneyMax = server.moneyMax ?? 0;
+
+  // Default pre-Formulas.exe weight. minDifficulty directly affects times, so it substitutes for min security times
+  let weight = moneyMax / (server.minDifficulty ?? 0);
+
+  // If we have formulas, we can refine the weight calculation
+  if (ns.fileExists('Formulas.exe')) {
+    const player = ns.getPlayer();
+
+    // We use weakenTime instead of minDifficulty since we got access to it,
+    // and we add hackChance to the mix (pre-formulas.exe hack chance formula is based on current security, which is useless)
+    weight =
+      (moneyMax / ns.formulas.hacking.weakenTime(server, player)) * ns.formulas.hacking.hackChance(server, player);
+  }
+  return weight;
 }

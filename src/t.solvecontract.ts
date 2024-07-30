@@ -7,6 +7,9 @@ import {
   generateIpAddresses,
   mergeOverlappingIntervals,
   minimumPathSumInTriangle,
+  encryption1CaesarCipher,
+  hammingCodesIntegerToEncodedBinary,
+  uniquePathsInGrid1,
 } from 'lib/lib.contracts';
 
 export async function main(ns: NS): Promise<void> {
@@ -22,6 +25,9 @@ export async function main(ns: NS): Promise<void> {
       'Merge Overlapping Intervals',
       'Total Ways to Sum',
       'Minimum Path Sum in Triangle',
+      'Encryption 1 Caesar Cipher',
+      'Hamming Codes Integer to Encoded Binary',
+      'Unique Paths in Grid 1',
     ],
   });
 
@@ -38,12 +44,14 @@ export async function main(ns: NS): Promise<void> {
   }
 
   if (contract === 'Max Profit') {
-    const result = maxProfit(JSON.parse(input.toString()));
+    const result = maxProfit(input.toString().split(',').map(Number));
     ns.tprint('result: ' + result);
   }
 
   if (contract === 'Subarray with Maximum Sum') {
-    const result = maxSubArray(JSON.parse(input.toString()));
+    console.log('parse: ', input.toString().split(',').map(Number));
+
+    const result = maxSubArray(input.toString().split(',').map(Number));
     ns.tprint('result: ' + result);
   }
 
@@ -63,6 +71,18 @@ export async function main(ns: NS): Promise<void> {
   }
   if (contract === 'Minimum Path Sum in Triangle') {
     const result = minimumPathSumInTriangle(JSON.parse(input.toString()));
+    ns.tprint('result: ' + result);
+  }
+  if (contract === 'Encryption 1 Caesar Cipher') {
+    const result = encryption1CaesarCipher(JSON.parse(input.toString()));
+    ns.tprint('result: ' + result);
+  }
+  if (contract === 'Hamming Codes Integer to Encoded Binary') {
+    const result = hammingCodesIntegerToEncodedBinary(Number(input.toString()));
+    ns.tprint('result: ' + result);
+  }
+  if (contract === 'Unique Paths in Grid 1') {
+    const result = uniquePathsInGrid1(JSON.parse(input.toString()));
     ns.tprint('result: ' + result);
   }
 

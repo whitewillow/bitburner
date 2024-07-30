@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { deployProtoAct, range } from 'lib/utils';
 import { SERVER_PREFIX } from 'lib/constants';
-import { getBotNodesDetailed } from 'lib/lib.node';
+import { getBotServers } from 'lib/lib.server';
 
 /**
  * Auto - Bots Maintainer - buys and upgrades servers
@@ -93,7 +93,7 @@ export async function main(ns: NS): Promise<void> {
     if (foundServersCount === maxServers) {
       status = 'UPGRADING';
 
-      const bots = getBotNodesDetailed(ns);
+      const bots = getBotServers(ns);
       const minRam = Math.min(...bots.map((m) => m.server.maxRam));
 
       if (minRam === maxRam) {
@@ -104,7 +104,7 @@ export async function main(ns: NS): Promise<void> {
 
       // console.log('UPGRADING');
 
-      getBotNodesDetailed(ns)
+      getBotServers(ns)
         .filter((f) => f.server.maxRam === minRam)
         .forEach((bot) => {
           const ramSize = minRam * 2;

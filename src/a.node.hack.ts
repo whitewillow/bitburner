@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import XServer from 'lib/class.xserver';
 import { PrintRows, PrintTable } from 'lib/lib.printcheap';
-import { getTargetNodesDetailed } from 'lib/lib.node';
+import { getTargetServersSorted } from 'lib/lib.server';
 import { brutePenetrate, deployProto, deployProtoAct } from 'lib/utils';
 
 /**
@@ -20,18 +20,25 @@ export async function main(ns: NS): Promise<void> {
   function deployTools(targetIds: string[]) {
     deployProtoAct(ns, targetIds);
     deployProto(ns, targetIds);
-    ns.printRaw('Deployed tools');
   }
 
   while (true) {
     const playerHackLvl = ns.getHackingLevel();
-    const possibleTargets = getTargetNodesDetailed(ns, 'hackChance');
+    const possibleTargets = getTargetServersSorted(ns, 'hackChance');
+    const targetsAdmin = possibleTargets.filter((t) => t.server.hasAdminRights);
     const targetsNotAdmin = possibleTargets.filter(
       (t) =>
         !t.server.hasAdminRights && t.server.requiredHackingSkill && t.server.requiredHackingSkill <= playerHackLvl,
     );
 
     deployTools(possibleTargets.map((m) => m.id));
+
+    ns.printRaw('-------------------');
+    ns.printRaw('Total Nodes: ' + possibleTargets.length);
+    ns.printRaw(`Nodes with admin rights: ${targetsAdmin.length}`);
+    ns.printRaw(`Nodes without admin rights: ${targetsNotAdmin.length}`);
+    ns.printRaw(`Nodes cant hack yet: ${possibleTargets.length - (targetsAdmin.length + targetsNotAdmin.length)}`);
+    ns.printRaw('-------------------');
 
     if (targetsNotAdmin.length === 0) {
       if (state !== 'NO_TARGET') {

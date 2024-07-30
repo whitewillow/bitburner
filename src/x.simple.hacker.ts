@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { executeCommands, getSimpleProtoBatch } from 'lib/lib.batch';
-import { getServerNodesDetailed, getTargetNodesDetailed } from 'lib/lib.node';
+import { getAllServers, getTargetServersSorted } from 'lib/lib.server';
 import { brutePenetrate, deployProtoAct } from './lib/utils';
 
 /**
@@ -24,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
 
   ns.print('Most expensive script cost: ', mostExpensive);
   // Try to brute force the target before starting
-  const nodeServers = getTargetNodesDetailed(ns, 'hackChance').filter((s) => s.id !== 'home');
+  const nodeServers = getTargetServersSorted(ns, 'hackChance').filter((s) => s.id !== 'home');
   const botsWithAdmin = [];
   for (const bot of [...nodeServers]) {
     const result = brutePenetrate(ns, bot.id);

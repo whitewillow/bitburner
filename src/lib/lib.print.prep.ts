@@ -1,6 +1,7 @@
 import { PrintRows } from 'lib/lib.print';
 import { calculatePercent } from 'lib/utils';
 import { ThreatAssesment } from './types';
+import { formatToUnit } from './number.helper';
 
 const iconAttack = '☠';
 const iconPrep = '🛠';
@@ -60,7 +61,7 @@ export function generatePrepRow(threatAssessedServers: ThreatAssesment[], light 
 
       {
         title: 'Difficulty',
-        value: server.baseDifficulty ?? 0,
+        value: `${server.minDifficulty ?? 0} / ${server.baseDifficulty ?? 0}`,
       },
       {
         title: 'Hackchance',
@@ -83,6 +84,11 @@ export function generatePrepRow(threatAssessedServers: ThreatAssesment[], light 
         value: bot.weakenThread.toFixed(2),
       },
       {
+        title: '$/s',
+        rightAlligned: true,
+        value: formatToUnit(bot.moneyPerSecond),
+      },
+      {
         title: '$ Available',
         rightAlligned: true,
         value: calculatePercent(bot.moneyAvailable, bot.moneyMax).toFixed(2) + '%',
@@ -90,7 +96,7 @@ export function generatePrepRow(threatAssessedServers: ThreatAssesment[], light 
       {
         title: 'Max Money',
         rightAlligned: true,
-        value: (server.moneyMax ?? 0).toLocaleString('en-US'),
+        value: formatToUnit(server.moneyMax ?? 0),
       },
     ];
     rows.push({ columns, color, icon, iconColor });

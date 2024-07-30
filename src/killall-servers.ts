@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { range } from 'lib/utils';
 import { SERVER_PREFIX } from 'lib/constants';
-import { getServerNodesDetailed } from './lib/lib.node';
+import { getAllServers } from './lib/lib.server';
 
 export async function main(ns: NS): Promise<void> {
   ns.killall();
@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
       }
     });
 
-  const servers = getServerNodesDetailed(ns, 'hackChance');
+  const servers = getAllServers(ns, 'hackChance');
   servers.forEach((s) => {
     ns.killall(s.id);
     try {

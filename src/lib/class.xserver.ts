@@ -31,6 +31,14 @@ export default class XServer {
   }
 
   /**
+   * Simple weight of a server - Money per second
+   * Use formula.exe for more precise calculations
+   */
+  get moneyPerSecond(): number {
+    return (this.server.moneyMax ?? 0) / (this.server.minDifficulty ?? 0);
+  }
+
+  /**
    * Returns true if the server is weakened to the max
    * aka - security is weakened to the absolute minimum
    */

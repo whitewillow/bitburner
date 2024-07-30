@@ -1,12 +1,12 @@
 import { NS } from '@ns';
-import { getTargetNodesDetailed } from 'lib/lib.node';
+import { getTargetServersSorted } from 'lib/lib.server';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.clearLog();
   const filname = ns.args[0]?.toString() ?? '';
 
-  const servers = getTargetNodesDetailed(ns, 'hackChance');
+  const servers = getTargetServersSorted(ns, 'hackChance');
   const possibleFileServer = servers
     .map((c) => {
       const files = ns.ls(c.id).filter((f) => f.toLowerCase().includes(filname.toLowerCase()));

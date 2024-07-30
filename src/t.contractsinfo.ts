@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { getTargetNodesDetailed } from 'lib/lib.node';
+import { getTargetServersSorted } from 'lib/lib.server';
 
 interface Contract {
   filename: string;
@@ -17,9 +17,8 @@ export async function main(ns: NS): Promise<void> {
     ns.tprint(`> run ${ns.getScriptName()}`);
     return;
   }
-  ns.tail();
 
-  const servers = getTargetNodesDetailed(ns, 'hackChance');
+  const servers = getTargetServersSorted(ns, 'hackChance');
   const possibleContracts = servers
     .map((c) => {
       const contracts: Contract[] = [];

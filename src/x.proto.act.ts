@@ -18,7 +18,6 @@ export async function main(ns: NS): Promise<void> {
   const nsKey = act as keyof typeof ns
   const response: number = await (ns as any)[nsKey](target, { additionalMsec: ms });
   
-  
   /**
    * Growth
    * returns The total effective multiplier that was applied to the server's money 
