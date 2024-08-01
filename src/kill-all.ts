@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { range } from 'lib/utils';
 import { SERVER_PREFIX } from 'lib/constants';
-import { getAllServers } from './lib/lib.server';
+import { getAllServers } from 'lib/lib.server';
 
 export async function main(ns: NS): Promise<void> {
   ns.killall();

@@ -1,5 +1,5 @@
 import { NS, NodeStats } from '@ns';
-import { range } from './lib/utils';
+import { range } from 'lib/utils';
 
 /**
  * Auto - HackNet Maintainer - buys and upgrades HackNet Nodes

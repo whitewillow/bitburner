@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { getStateField, updateStateField } from 'lib/state';
+import { getStateField, updateStateField } from './state';
 
 export const STATE_CURRENTLY_PREPPING = 'currentlyPrepping';
 

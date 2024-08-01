@@ -5,8 +5,12 @@ export function saveStateRaw(ns: NS, state: Record<string, any>): void {
   ns.write(STATE_FILENAME, JSON.stringify(state), 'w');
 }
 
-export function saveState(ns: NS, newState: Record<string, any>): void {
+export function saveState(ns: NS, newState: Record<string, any>, overwrite: boolean = false): void {
   const state = loadState(ns);
+  if (overwrite) {
+    saveStateRaw(ns, newState);
+    return;
+  }
   saveStateRaw(ns, { ...state, ...newState });
 }
 

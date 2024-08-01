@@ -1,6 +1,42 @@
 # TODO - 29 Juli 2024
 
 
+# Naming
+
+
+/lib
+- lib.server.ts
+- etc
+
+/services:
+- queue.service.ts                // port queue servier
+- bot-maintainer.service.ts       // maintains bots
+- hnet-maintainer.service.ts      // maintains hnets
+- penetrator.service.ts           // auto hacks target servers
+- contract.service.ts             // auto solves contracts
+- proto.service.ts                // Auto fleet manager (x.auto)
+
+/utils
+- number-utils.ts
+
+/*
+- controller.ts                    // starts all scripts for fully automation
+- fixed-prep-batch.ts              // preps and hwgw single target using current server (home)
+- prep.ts                          // preps single target using current server (home)
+- prep-controller.ts               // wgw using all bots/targets/home {target, botstart, botend}
+- batch.ts                         // hwgw single target using current server (home)
+- batch-controller.ts              // hwgw using all bots/targets/home {target, botstart, botend}
+- remote-worker.ts                 // should be deployed, will either H,W or G
+
+- find.ts                          // find server or files
+- route.ts                         // gives route to target host
+- kill-all.ts                      // kill all apps
+- bot-info.ts                      // shows Bots info             
+- contract-info.ts                 // shows contract info and locations
+- target-info.ts                   // shows Targes info in a tree 
+
+
+
 ## Optimize/Refak
 
 - Thread sequencer. could be better
@@ -11,7 +47,10 @@
 
 ## Contracts
 
-## Able to stop batch rubnbibg
+## Able to stop batch running
+
+
+
 
 
 
@@ -37,23 +76,43 @@ Toggle scripts
  Toggle App Number > 4;
 
 
+### States
+
+
+```js
+// Auto attack states
+
+currentlyAttacking: string[];
+currentlyPrepping: string[];
+ignoreTargets: string[];
+
+contracts: {solved:string[], failed: string[], total: string[]};
+bots: {bots:XServer[]};
+```
+
 ### VIEW:
 
-Running Scripts
+Controller 0.1
 _____________________________
-Penetrator
-Bot Maintainer (paused)
-HNet Maintainer (paused)
-Auto Batcher
+
+✓    Penetrator
+✓    Fixed Hacker n00dles
+✓    Fixed Hacker foodnstuff
+✓    Auto Batcher
+-    Bot Maintainer (paused)
+-    HNet Maintainer (paused)
+-    Contract Solver (paused)
+
 _____________________________
 
 Attacking:  [CSEC, joesguns, n00dles]
 Prepping:   [phantasy, neo-net]
 _____________________________
 
-Bots: 25 (1GB - 4GB)
-Hacknet: 30
-Found contracts: 11
+Bots:       25 (1GB - 4GB)
+Hacknet:    30
+Contracts:  11
+Contracts solved: 3
 _____________________________
 
 

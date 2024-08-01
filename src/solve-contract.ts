@@ -85,22 +85,4 @@ export async function main(ns: NS): Promise<void> {
     const result = uniquePathsInGrid1(JSON.parse(input.toString()));
     ns.tprint('result: ' + result);
   }
-
-  // ns.tprint('result: ' + result);
-
-  // ns.tprint(`maxProfit SANATI = ${maxProfit([9, 151, 169, 35, 194, 68, 19, 148, 29, 97, 12, 29])} === 533`);
-
-  // ns.tprint(`maxProfit = ${maxProfit([69, 97, 51, 191, 31, 33, 74, 111, 145, 75, 192, 119, 82, 24])}`);
-
-  // ns.tprint(`8 = ${hammingCode(8)}`);
-  // ns.tprint(`21 = ${hammingCode(21)}`);
-  // ns.tprint(`6220614038587 = ${hammingCode(6220614038587)}`);
 }
-
-// [10,[[5,7],[2,6],[3,4],[1,7],[1,3],[4,9],[6,7],[0,7],[0,5],[7,8],[8,9],[3,8],[0,6],[2,8],[0,4]]]
-
-// Input: [4, [[0, 2], [0, 3], [1, 2], [1, 3]]]
-// Output: [0, 0, 1, 1]
-
-// Input: [3, [[0, 1], [0, 2], [1, 2]]]
-// Output: []

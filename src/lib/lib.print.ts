@@ -108,12 +108,14 @@ export function printTerminalRow(ns: NS, rows: PrintRows[], settings: PrintTable
   });
 }
 
-export function printTerminalTable(ns: NS, header: string, rows: PrintRows[], settings?: PrintTableSettings) {
+export function printTerminalTable(ns: NS, header: string | null, rows: PrintRows[], settings?: PrintTableSettings) {
   const _settings = defaultSettings(settings);
   if (header && header.length > 0) {
-    ns.tprintRaw('\n');
-    ns.tprintRaw(addSpaces(_settings.padding) + header);
-    ns.tprintRaw(addSpaces(_settings.padding) + '---------');
+    if (header) {
+      ns.tprintRaw('\n');
+      ns.tprintRaw(addSpaces(_settings.padding) + header);
+      ns.tprintRaw(addSpaces(_settings.padding) + '---------');
+    }
   }
 
   printTerminalRow(ns, rows, _settings);

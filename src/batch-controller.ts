@@ -4,9 +4,7 @@ import {
   getProtoBatch,
   getSimpleProtoBatch,
   isTargetReadyForAttack,
-  maxCommandDelay,
-  maxCommandRamCost,
-  totalCommandRamCost,
+  maxCommandRamCost
 } from 'lib/lib.batch';
 import { getBotServersRange } from 'lib/lib.server';
 import XServer from './lib/class.xserver';

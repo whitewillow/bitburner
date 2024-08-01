@@ -73,7 +73,7 @@ export function deployProtoAct(ns: NS, hostnames: string[]) {
 }
 
 export function deployProto(ns: NS, hostnames: string[]) {
-  deployFiles(ns, ['x.proto.prep.auto.js', 'x.proto.batch.auto.js'], hostnames);
+  deployFiles(ns, ['prep-controller.js', 'batch-controller.js'], hostnames);
 }
 
 export function calculatePercent(val?: number, total?: number) {

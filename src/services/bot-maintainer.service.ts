@@ -51,8 +51,6 @@ export async function main(ns: NS): Promise<void> {
     ns.purchaseServer(host, purchaseRamSize);
   }
 
-  ns.tail();
-
   /**
    * Main loop
    */
@@ -111,10 +109,9 @@ export async function main(ns: NS): Promise<void> {
           if (canPurchaseRam(ramSize)) {
             shutdownServer(bot.id);
             ns.purchaseServer(bot.id, ramSize);
-            ns.printRaw('Upgrading server: ' + bot.id + ' to: ' + ramSize + ' GB');
+            ns.printRaw('Upgrading server: ' + bot.id + ' to: ' + ns.formatRam(ramSize) + ' GB');
           }
         });
     }
-
   }
 }

@@ -11,7 +11,6 @@ import { brutePenetrate, deployProto, deployProtoAct } from 'lib/utils';
  */
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
-  ns.tail();
   ns.printRaw('Starting Node Hacker');
 
   const WAIT_TIME = 10000;

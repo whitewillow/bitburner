@@ -4,7 +4,8 @@ import { getBotServers, getTargetServers, getThreatAssesment } from 'lib/lib.ser
 import { PrintTable } from 'lib/lib.printcheap';
 import { generatePrepRow } from 'lib/lib.print.prep';
 import { sortField } from 'lib/utils';
-import { getStateCurrentlyPrepping, setStateCurrentlyPrepping } from 'lib/state.prep';
+import { getStateCurrentlyPrepping, setStateCurrentlyPrepping } from 'state/state.prep';
+import { addStateCurrentlyAttacking, removeStateCurrentlyAttacking, setStateCurrentlyAttacking } from 'state/state.attack';
 
 interface Attack {
   host: string;
@@ -14,7 +15,6 @@ interface Attack {
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.clearLog();
-  ns.tail();
 
   const MAX_PREPS = Number(ns.args[0] ?? 3);
   const MAX_ATTACKS = Number(ns.args[1] ?? 8);
@@ -78,6 +78,7 @@ export async function main(ns: NS): Promise<void> {
     const potentialTargets = targetServers.filter(
       (f) =>
         (f.server.moneyMax ?? 0) > 0 &&
+        f.server.hasAdminRights &&
         f.server.requiredHackingSkill &&
         f.server.requiredHackingSkill <= player.skills.hacking,
     );
@@ -120,8 +121,9 @@ export async function main(ns: NS): Promise<void> {
     }
 
     const [target] = potentialTargets;
-    const pid = ns.run('x.proto.batch.auto.js', 1, target.id, getAttackBotStart());
+    const pid = ns.run('batch-controller.js', 1, target.id, getAttackBotStart());
     currentlyAttacking.push({ host: target.id, pid });
+    addStateCurrentlyAttacking(ns, target.id);
   }
 
   /**
@@ -133,6 +135,7 @@ export async function main(ns: NS): Promise<void> {
     if (pid) {
       ns.kill(Number(pid));
     }
+    removeStateCurrentlyAttacking(ns, targetId);
     currentlyAttacking = currentlyAttacking.filter((f) => f.host !== targetId);
     possibleOutOfSync = possibleOutOfSync.filter((f) => f !== targetId);
   }
@@ -197,7 +200,7 @@ export async function main(ns: NS): Promise<void> {
     if (!target) {
       return;
     }
-    ns.run('x.proto.prep.auto.js', 1, target.id, getPrepBotStart(), getPrepBotEnd());
+    ns.run('prep-controller.js', 1, target.id, getPrepBotStart(), getPrepBotEnd());
   }
 
   function getState() {
@@ -205,6 +208,7 @@ export async function main(ns: NS): Promise<void> {
   }
 
   setStateCurrentlyPrepping(ns, []);
+  setStateCurrentlyAttacking(ns, []);
 
   while (true) {
     await ns.sleep(1000);

@@ -8,13 +8,14 @@ export interface PrintRows {
   columns: PrintColumns[];
 }
 export interface PrintColumns {
-  title: string;
+  title?: string;
   value: string | number | boolean;
   rightAlligned?: boolean;
 }
 export interface PrintTableSettings {
   padding?: number;
   fancy?: boolean;
+  noRowHeader?: boolean;
 }
 
 export const addSpaces = (spaces: number) => ' '.repeat(spaces);
@@ -36,14 +37,13 @@ export function maxColumnLengths(rows: PrintRows[]) {
   for (const row of rows) {
     row.columns.forEach((col, index) => {
       if (!columnsMaxLength[index]) {
-        columnsMaxLength[index] = col.title.length;
+        columnsMaxLength[index] = col.title?.length ?? 0;
       }
       columnsMaxLength[index] = Math.max(col.value.toString().length, columnsMaxLength[index]);
     });
   }
   return columnsMaxLength;
 }
-
 
 export function generateRow(row: PrintRows, columnsMaxLength: number[], settings: PrintTableSettings) {
   const _settings = defaultSettings(settings);
@@ -54,7 +54,10 @@ export function generateRow(row: PrintRows, columnsMaxLength: number[], settings
 
 export function generateRowHeader(row: PrintRows, columnsMaxLength: number[], settings: PrintTableSettings) {
   const _settings = defaultSettings(settings);
-  const columns = row.columns.map((col, i) => fillSpaces(col.title.toString(), columnsMaxLength[i], col.rightAlligned));
+  if (_settings.noRowHeader) {
+    return '';
+  }
+  const columns = row.columns.map((col, i) => fillSpaces(col.title ?? '', columnsMaxLength[i], col.rightAlligned));
   return [...columns].join(addSpaces(_settings.padding));
 }
 
@@ -63,7 +66,7 @@ export function generateRowStrings(ns: NS, rows: PrintRows[], settings: PrintTab
   const columnsMaxLength = maxColumnLengths(rows);
   const lines: string[] = [];
 
-  const headers = rows[0].columns.map((col, i) => fillSpaces(col.title, columnsMaxLength[i], col.rightAlligned));
+  const headers = rows[0].columns.map((col, i) => fillSpaces(col.title ?? '', columnsMaxLength[i], col.rightAlligned));
 
   for (const row of rows) {
     const columns = row.columns.map((col, i) =>
@@ -99,16 +102,16 @@ export function printTableRow(ns: NS, rows: PrintRows[], settings: PrintTableSet
 
   rows.forEach((row) => {
     const content = generateRow(row, columnsMaxLength, settings);
-    const icon = row.icon ? ` ${row.icon} `: addSpaces(iconSpace) + '';
+    const icon = row.icon ? ` ${row.icon} ` : addSpaces(iconSpace) + '';
     ns.printRaw([icon, _settings.fancy ? content : content]);
   });
 }
 
-export function PrintTable(ns: NS, header: string, rows: PrintRows[], settings?: PrintTableSettings) {
+export function PrintTable(ns: NS, header: string | null, rows: PrintRows[], settings?: PrintTableSettings) {
   const _settings = defaultSettings(settings);
   ns.printRaw('\n');
-  ns.printRaw(addSpaces(_settings.padding) + header);
-  ns.printRaw(addSpaces(_settings.padding) + '---------');
+  if (header) {
+    ns.printRaw(addSpaces(_settings.padding) + header);
+  }
   printTableRow(ns, rows, _settings);
-  ns.printRaw(addSpaces(_settings.padding) + '---------');
 }

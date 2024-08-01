@@ -1,14 +1,13 @@
 import { NS } from '@ns';
+import XServer from 'lib/class.xserver';
 import {
   executeCommands,
   getPreppingBatch,
   getSimplePreppingBatch,
-  maxCommandDelay,
-  maxCommandRamCost,
+  maxCommandRamCost
 } from 'lib/lib.batch';
-import XServer from 'lib/class.xserver';
 import { getBotServersRange, getTargetServers } from 'lib/lib.server';
-import { addStateCurrentlyPrepping, removeStateCurrentlyPrepping } from './lib/state.prep';
+import { addStateCurrentlyPrepping, removeStateCurrentlyPrepping } from './state/state.prep';
 
 /**
  * Prepper script
@@ -57,15 +56,17 @@ export async function main(ns: NS): Promise<void> {
       break;
     }
 
+    const homeServer = new XServer(ns, 'home');
     const botServers = toServer === 0 ? [] : getBotServersRange(ns, fromServer, toServer);
     const availableNodes = getAvailableNodes();
-    for (const bot of [...botServers, ...availableNodes]) {
-      if (bot.ram.free < ramRequired(bot)) {
+    for (const bot of [...botServers, ...availableNodes, homeServer]) {
+      const ramFree = bot.id === 'home' ? Math.floor(bot.ram.free / 4) : bot.ram.free;
+      if (ramFree < ramRequired(bot)) {
         // No more free ram - skip to next bot
         continue;
       }
       const commands = commandsToUse(bot);
-      
+
       executeCommands(ns, commands, bot.id, target);
 
       // Must delay between commands

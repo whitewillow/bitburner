@@ -21,6 +21,7 @@ function recursiveScan(ns: NS, parent: string, server: string, target: string, r
 }
 
 export async function main(ns: NS): Promise<void> {
+    ns.disableLog('ALL');
     const args = ns.flags([["help", false]]);
     let route: string[] = [];
     const server: string = ns.args[0]?.toString();
@@ -32,5 +33,8 @@ export async function main(ns: NS): Promise<void> {
         return;
     }
     recursiveScan(ns, '', 'home', server, route);
-    ns.tprint("connect ", route.join("; connect "), "; backdoor")
+    ns.tprintRaw('__________________');
+    ns.tprintRaw('');
+    ns.tprintRaw(`connect ${route.join("; connect ")} ; backdoor`);
+    ns.tprintRaw('__________________');
 }

@@ -1,26 +1,19 @@
 import { NS } from '@ns';
-import { executeCommands, getSimpleProtoBatch, maxCommandRamCost } from 'lib/lib.batch';
+import { getEvent, writeToInputPort } from 'lib/lib.port';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
-  const target = ns.args[0]?.toString() ?? 'n00dles';
-  const botServer = 'home';
-  ns.print('Target: ', target);
 
-  ns.print('Starting batch attack on: ', target, ' from: ', botServer);
+  ns.print('Starting test script');
 
-  const listCommands = getSimpleProtoBatch(ns, target);
+  writeToInputPort(ns, 'STATE', 1, 'Tester');
 
-  const maxCRamCost = maxCommandRamCost(ns, listCommands);
-  ns.print('Total script cost: ', maxCommandRamCost);
-  console.log('commands', listCommands);
+  while (true) {
+    const event = getEvent(ns, 'STATE');
+    if (event) {
+      ns.tprint(event);
+    }
+    await ns.sleep(1000);
+  }
 
-  // while (true) {
-  //   const freeRam = ns.getServerMaxRam(botServer) - ns.getServerUsedRam(botServer);
-
-  //   if (freeRam > maxCRamCost) {
-  //     executeCommands(ns, listCommands, botServer, target);
-  //   } 
-  //   await ns.sleep(1000);
-  // }
 }

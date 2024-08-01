@@ -6,7 +6,6 @@ import XServer from 'lib/class.xserver';
 export async function main(ns: NS): Promise<void> {
   const target = ns.args[0]?.toString() ?? 'n00dles';
   const botServer = ns.getHostname();
-  console.log('X Proto Prep', target, botServer);
 
   ns.disableLog('ALL');
   ns.printRaw(['Target: ', target]);
@@ -19,7 +18,6 @@ export async function main(ns: NS): Promise<void> {
   ns.print('Total script cost: ', totalScriptCost);
   let i = 0;
   while (true) {
-    console.log('Batch', target, i);
     const pids: FilenameOrPID[] = [];
     const targetServer = new XServer(ns, target);
     if (targetServer.isMoneyAvailableMaxed && targetServer.isServerWeakendToMinimum) {
