@@ -9,3 +9,6 @@ As for threads, you can have as many threads running on a server as the RAM supp
 They don't affect anything else.
 
 See https://www.reddit.com/r/Bitburner/comments/1eg6h0c/question_about_threads/
+
+
+To avoid black screen with high thread counts, I do 3 things. 1. Place a sleep between batches. 2. Place a small sleep at an interval while launching threads. 3. Add extra ms to the h/w/g threads if weaken time is too low, so the last threads aren't launching while the first threads are landing. Doing this I got over 1m threads launched and landed, but I use a limit of 250k threads normally.

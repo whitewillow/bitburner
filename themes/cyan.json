@@ -1,0 +1,72 @@
+{
+    "primarylight": "#3F9FA3",
+    "primary": "#00A0A4",
+    "primarydark": "#007C7E",
+    "successlight": "#73B83B",
+    "success": "#68B300",
+    "successdark": "#4D8F00",
+    "errorlight": "#F27178",
+    "error": "#E74C3C",
+    "errordark": "#C0392B",
+    "secondarylight": "#BBBBBB",
+    "secondary": "#8E8E8E",
+    "secondarydark": "#656565",
+    "warninglight": "#FFD65E",
+    "warning": "#FFB900",
+    "warningdark": "#D4A100",
+    "infolight": "#6FA3FF",
+    "info": "#3E84F5",
+    "infodark": "#2763D3",
+    "welllight": "#444444",
+    "well": "#333333",
+    "white": "#FFFFFF",
+    "black": "#E8E8E8",
+    "hp": "#F27178",
+    "money": "#F7D357",
+    "hack": "#21BA45",
+    "combat": "#00B5AD",
+    "cha": "#A671D1",
+    "int": "#9575CD",
+    "rep": "#73B83B",
+    "disabled": "#777777",
+    "backgroundprimary": "#111111",
+    "backgroundsecondary": "#222222",
+    "button": "#222222",
+    "maplocation": "#FFFFFF",
+    "bnlvl0": "#FFFF00",
+    "bnlvl1": "#FF0000",
+    "bnlvl2": "#44DDCC",
+    "bnlvl3": "#0000FF",
+    "base": "vs-dark",
+    "inherit": true,
+    "common": {
+      "accent": "f07178",
+      "bg": "263238",
+      "fg": "B0BEC5"
+    },
+    "syntax": {
+      "tag": "f07178",
+      "entity": "f78c6c",
+      "string": "c3e88d",
+      "regexp": "89ddff",
+      "markup": "82aaff",
+      "keyword": "c792ea",
+      "comment": "546e7a",
+      "constant": "f07178",
+      "error": "ff5370"
+    },
+    "ui": {
+      "line": "1E272C",
+      "panel": {
+        "bg": "263238",
+        "selected": "425B67",
+        "border": "2A373E"
+      },
+      "selection": {
+        "bg": "ADD6FF26"
+      }
+    },
+    "backgroundsecndary": "#252525",
+    "buttonborder": "#3D8E91",
+    "buttontext": "#FFFFFF"
+  }

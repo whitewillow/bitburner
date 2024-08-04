@@ -42,6 +42,7 @@
 - Thread sequencer. could be better
 - prep auth delay before next bot. - maybe fixed amount of batches?
 - bot maintainer better logs
+- penetrator should log/toast/port amount hacked
 
 ## Play with Stocks
 
@@ -51,6 +52,9 @@
 
 
 
+## WORKERS ????
+instead of remote-worker, make worker
+listens for new commands from controller, instead of controller just starting work
 
 
 

@@ -3,11 +3,10 @@
  */
 
 import { NS } from '@ns';
-import { PrintRows, printTerminalTable } from 'lib/lib.print';
-import {
-  getBotServers,
-} from 'lib/lib.server';
+import { printTerminalTable } from 'lib/lib.print';
+import { getBotServers } from 'lib/lib.server';
 import XServer from './lib/class.xserver';
+import { PrintRows } from './lib/types';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
@@ -48,11 +47,7 @@ export async function main(ns: NS): Promise<void> {
   }
 
   const botServers = getBotServers(ns);
-  // const externalBotServers = getTargetServers(ns);
   const botServersRows = generateRow(botServers);
-  // const externalBotServersRows = generateRow(externalBotServers);
 
   printTerminalTable(ns, 'Bots', botServersRows);
-
-  // printTerminalTable(ns, 'External Bots', externalBotServersRows);
 }

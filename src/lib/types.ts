@@ -50,8 +50,9 @@ export interface ControllerScript {
   threadOrOptions?: number | RunOptions | undefined;
   args?: ScriptArg[];
   minRam?: number;
-  state: 'RUNNING' | 'PAUSED' | 'WAITING_FOR_RAM' | 'START';
+  state: 'RUNNING' | 'PAUSED' | 'WAITING_FOR_RAM' | 'START' | 'SYSTEM';
   pid?: FilenameOrPID;
+  warnIfNotRunning?: boolean;
 }
 
 export interface ControllerTargets {
@@ -69,6 +70,37 @@ export interface ControllerContracts {
 
 export interface ControllerHacknet {
   nodes: number;
+}
+
+export interface PrintRows {
+  title?: string;
+  color?: string;
+  icon?: string;
+  iconColor?: string;
+  columns: PrintColumns[];
+}
+
+export interface PrintColumns {
+  color?: string;
+  title?: string;
+  value: string | number | boolean;
+  rightAlligned?: boolean;
+}
+
+export interface PrintTableSettings {
+  padding?: number;
+  fancy?: boolean;
+  noRowHeader?: boolean;
+  spaceBetweenRows?: boolean;
+}
+
+export interface PenetratorState {
+  knownServers: string[];
+  serversWithRoot: string[];
+  potentialTargets: string[];
+  serversCantHack: string[];
+  recentlyHacked: string[];
+  recentlyHackedTime?: number;
 }
 
 export type EventType = 'STATE' | 'GLOBAL_STATE' | 'CONTROLLER_STATE' | 'SETTING_SCRIPTS';

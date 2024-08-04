@@ -1,11 +1,15 @@
-import { FilenameOrPID, NS, Player } from '@ns';
+import { FilenameOrPID, NS } from '@ns';
 import XServer from 'lib/class.xserver';
-import { getBotServers, getTargetServers, getThreatAssesment } from 'lib/lib.server';
-import { PrintTable } from 'lib/lib.printcheap';
-import { generatePrepRow } from 'lib/lib.print.prep';
+import { getBotServers, getPotentialTargets } from 'lib/lib.server';
 import { sortField } from 'lib/utils';
+import {
+  addStateCurrentlyAttacking,
+  getStateCurrentlyAttacking,
+  removeStateCurrentlyAttacking,
+  setStateCurrentlyAttacking,
+} from 'state/state.attack';
 import { getStateCurrentlyPrepping, setStateCurrentlyPrepping } from 'state/state.prep';
-import { addStateCurrentlyAttacking, removeStateCurrentlyAttacking, setStateCurrentlyAttacking } from 'state/state.attack';
+import { getStateIgnoreTargets } from '/state/state.controller-ignore';
 
 interface Attack {
   host: string;
@@ -15,36 +19,22 @@ interface Attack {
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
   ns.clearLog();
+  ns.print('Starting Proto Service');
+  ns.print('use monitor-targets.js to monitor the service');
 
-  const MAX_PREPS = Number(ns.args[0] ?? 3);
-  const MAX_ATTACKS = Number(ns.args[1] ?? 8);
+  const MAX_PREPS = Number(ns.args[0] ?? 4);
+  const MAX_ATTACKS = Number(ns.args[1] ?? 20);
   const ATTACK_HACKCHANCE_HIGHER_THAN = 80;
   const PREPPING_HACKCHANCE_HIGHER_THAN = 50;
   let i = 0;
 
-  let targetServers: XServer[] = [];
   let availableBots: XServer[] = [];
   let currentlyPrepping: string[] = [];
   let currentlyAttacking: Array<Attack> = [];
   let player = ns.getPlayer();
   let possibleOutOfSync: string[] = [];
   let outOfSyncServers: { host: string; counter: number }[] = [];
-
-  function printStatus() {
-    const nodes = getPotentialTargets().map((m) => getThreatAssesment(ns, m));
-    const underAttack = currentlyAttacking.map((m) => m.host);
-    const rows = generatePrepRow(nodes, false, underAttack, currentlyPrepping);
-    ns.clearLog();
-    ns.printRaw('Max Prepping: ' + MAX_PREPS);
-    ns.printRaw('Max Attacks: ' + MAX_ATTACKS);
-    ns.printRaw('Prepping: ' + currentlyPrepping.length);
-    ns.printRaw('Attacking: ' + currentlyAttacking.length);
-    ns.printRaw('Bots: ' + availableBots.length);
-    ns.printRaw('Possible OutOfSync: ' + possibleOutOfSync.length);
-    ns.printRaw('OutOfSyncServers: ' + JSON.stringify(outOfSyncServers));
-    ns.printRaw('Runs: ' + i);
-    PrintTable(ns, 'Targets', rows, { fancy: true });
-  }
+  let ignoreTargets: string[] = [];
 
   function getPrepBotStart() {
     return 0;
@@ -71,18 +61,11 @@ export async function main(ns: NS): Promise<void> {
     return 7;
   }
 
-  function getPotentialTargets() {
-    // const potentialTargets = targetServers.filter(
-    //   (f) => (f.server.moneyMax ?? 0) > 0 && f.hackChance >= fromHackChance,
-    // );
-    const potentialTargets = targetServers.filter(
-      (f) =>
-        (f.server.moneyMax ?? 0) > 0 &&
-        f.server.hasAdminRights &&
-        f.server.requiredHackingSkill &&
-        f.server.requiredHackingSkill <= player.skills.hacking,
-    );
-    return potentialTargets;
+  function sortByDifficultyAndMoneyPerSecond(a: XServer, b: XServer) {
+    if (a.hackDifficulty === b.hackDifficulty) {
+      return a.moneyPerSecond - b.moneyPerSecond;
+    }
+    return a.hackDifficulty - b.hackDifficulty;
   }
 
   /**
@@ -91,10 +74,11 @@ export async function main(ns: NS): Promise<void> {
    */
   function getPotentialTargetsFiltered(fromHackChance: number = ATTACK_HACKCHANCE_HIGHER_THAN) {
     const currentlyAttackingIds = currentlyAttacking.map((m) => m.host);
-    const potentialTargets = getPotentialTargets()
-      .filter((f) => f.hackChance >= fromHackChance)
+    const potentialTargets = getPotentialTargets(ns, player.skills.hacking)
+      .filter((f) => !ignoreTargets.includes(f.id) && f.hackChance >= fromHackChance)
       .filter((f) => !currentlyAttackingIds.includes(f.id) && !currentlyPrepping.includes(f.id))
-      .sort(sortField('moneyPerSecond', 'desc'));
+      .sort(sortByDifficultyAndMoneyPerSecond);
+
     return potentialTargets;
   }
 
@@ -205,20 +189,19 @@ export async function main(ns: NS): Promise<void> {
 
   function getState() {
     currentlyPrepping = getStateCurrentlyPrepping(ns);
+    const stateCurrentlyAttacking = getStateCurrentlyAttacking(ns);
+    currentlyAttacking = currentlyAttacking.filter((f) => stateCurrentlyAttacking.includes(f.host));
+    ignoreTargets = getStateIgnoreTargets(ns);
   }
 
   setStateCurrentlyPrepping(ns, []);
   setStateCurrentlyAttacking(ns, []);
 
   while (true) {
-    await ns.sleep(1000);
     getState();
 
     player = ns.getPlayer();
     availableBots = getBotServers(ns);
-    targetServers = getTargetServers(ns);
-
-    //TODO: Able to focus on a single target
 
     checkIfOutOfSync();
     checkForBetterTargets();
@@ -229,22 +212,9 @@ export async function main(ns: NS): Promise<void> {
 
     if (currentlyPrepping.length < MAX_PREPS) {
       startNewPrepping();
-      // TODO: Prep other targets if all other targets are prepped
     }
 
-    /**
-     * Update available nodes
-     *
-     * Hold state of available nodes
-     * Hold state for currentlyPrepping
-     * Hold state for currentlyAttacking
-     *
-     * Is any nodes ready for attack?
-     * Is any nodes ready for prepping?
-     */
-
-    printStatus();
-
     i++;
+    await ns.sleep(2000);
   }
 }

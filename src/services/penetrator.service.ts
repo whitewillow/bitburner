@@ -1,8 +1,10 @@
 import { NS } from '@ns';
 import XServer from 'lib/class.xserver';
-import { PrintRows, PrintTable } from 'lib/lib.printcheap';
+import { PrintTable, generateRecordRows, printLogHeader } from 'lib/lib.print';
 import { getTargetServersSorted } from 'lib/lib.server';
-import { brutePenetrate, deployProto, deployProtoAct } from 'lib/utils';
+import { brutePenetrate, deployProtoAct } from 'lib/utils';
+import { PenetratorState } from '/lib/types';
+import { getStatePenetrator, setStatePenetrator } from '/state/state.penetrator';
 
 /**
  * Auto - Node Hacker - Looks for new servers to penetrate
@@ -11,82 +13,72 @@ import { brutePenetrate, deployProto, deployProtoAct } from 'lib/utils';
  */
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
-  ns.printRaw('Starting Node Hacker');
+  ns.printRaw('Penetrator Service Started');
 
   const WAIT_TIME = 10000;
-  let state = 'INIT'; // INIT | NO_TARGET | TARGET_FOUND
 
   function deployTools(targetIds: string[]) {
     deployProtoAct(ns, targetIds);
-    deployProto(ns, targetIds);
+    // TODO: Maybe deploy other tools ?
   }
+
+  function minutesSinceLastHacked(state: PenetratorState): string {
+    if (!state.recentlyHackedTime) {
+      return 'N/A';
+    }
+    return ns.formatNumber((Date.now() - state.recentlyHackedTime) / 60000);
+  }
+
+  function printState(state: PenetratorState, iterations: number) {
+    ns.clearLog();
+
+    printLogHeader(ns, `Penetrator Service - Iteration: ${iterations}`);
+    const recordRows = generateRecordRows([
+      { title: 'Known Servers', value: state.knownServers.length },
+      { title: 'Servers With Root', value: state.serversWithRoot.length },
+      { title: 'Potential Targets', value: state.potentialTargets.length },
+      { title: 'Servers Cant Hack', value: state.serversCantHack.length },
+      { title: 'Recently Hacked', value: state.recentlyHacked.length },
+      { title: 'Recently Hacked Time', value: minutesSinceLastHacked(state) },
+    ]);
+    PrintTable(ns, null, recordRows, { fancy: false, padding: 2 });
+  }
+
+  let iterations = 0;
 
   while (true) {
     const playerHackLvl = ns.getHackingLevel();
     const possibleTargets = getTargetServersSorted(ns, 'hackChance');
     const targetsAdmin = possibleTargets.filter((t) => t.server.hasAdminRights);
-    const targetsNotAdmin = possibleTargets.filter(
+    const potentialTargets = possibleTargets.filter(
       (t) =>
         !t.server.hasAdminRights && t.server.requiredHackingSkill && t.server.requiredHackingSkill <= playerHackLvl,
     );
 
     deployTools(possibleTargets.map((m) => m.id));
+    const penetratorState: PenetratorState = getStatePenetrator(ns);
+    penetratorState.knownServers = possibleTargets.map((m) => m.id);
+    penetratorState.serversWithRoot = targetsAdmin.map((m) => m.id);
+    penetratorState.potentialTargets = potentialTargets.map((m) => m.id);
+    penetratorState.serversCantHack = penetratorState.knownServers.filter(
+      (ks) => !penetratorState.serversWithRoot.includes(ks) && !penetratorState.potentialTargets.includes(ks),
+    );
 
-    ns.printRaw('-------------------');
-    ns.printRaw('Total Nodes: ' + possibleTargets.length);
-    ns.printRaw(`Nodes with admin rights: ${targetsAdmin.length}`);
-    ns.printRaw(`Nodes without admin rights: ${targetsNotAdmin.length}`);
-    ns.printRaw(`Nodes cant hack yet: ${possibleTargets.length - (targetsAdmin.length + targetsNotAdmin.length)}`);
-    ns.printRaw('-------------------');
-
-    if (targetsNotAdmin.length === 0) {
-      if (state !== 'NO_TARGET') {
-        ns.printRaw('No Targets found');
-        state = 'NO_TARGET';
-      }
-      await ns.sleep(WAIT_TIME);
-      continue;
-    }
-
-    const success: XServer[] = [];
-
-    for (const target of targetsNotAdmin) {
-      if (brutePenetrate(ns, target.id)) {
-        success.push(target);
+    if (potentialTargets.length > 0) {
+      // Try to penetrate
+      const success: XServer[] = possibleTargets.filter((pt) => brutePenetrate(ns, pt.id));
+      if (success.length > 0) {
+        // Save the recently hacked servers
+        penetratorState.recentlyHacked = success.map((m) => m.id);
+        penetratorState.recentlyHackedTime = Date.now();
       }
     }
 
-    if (success.length === 0) {
-      if (state !== 'TARGET_FOUND') {
-        ns.printRaw('Found targets but failed to penetrate');
-        state = 'TARGET_FOUND';
-      }
-      await ns.sleep(WAIT_TIME);
-      continue;
-    }
+    setStatePenetrator(ns, penetratorState);
 
-    const rows: PrintRows[] = [];
+    printState(penetratorState, iterations);
+    iterations++;
 
-    for (const server of success) {
-      const columns = [
-        {
-          title: 'Host',
-          value: server.id,
-        },
-        {
-          title: 'Hacked',
-          value: true,
-        },
-        {
-          title: 'Chance',
-          value: ns.formatPercent(server.hackChance),
-        },
-      ];
-      rows.push({ columns });
-    }
-
-    PrintTable(ns, 'Successfully penetrated', rows);
-    state = 'TARGET_FOUND';
     await ns.sleep(WAIT_TIME);
   }
 }

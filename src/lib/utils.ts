@@ -69,7 +69,7 @@ export function deployFiles(ns: NS, files: string[], hostnames: string[]) {
 }
 
 export function deployProtoAct(ns: NS, hostnames: string[]) {
-  deployFiles(ns, ['x.proto.act.js'], hostnames);
+  deployFiles(ns, ['remote-action.js'], hostnames);
 }
 
 export function deployProto(ns: NS, hostnames: string[]) {

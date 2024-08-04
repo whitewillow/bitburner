@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { executeCommands, getSimpleProtoBatch } from 'lib/lib.batch';
+import { executeCommands, getProtoBatch } from 'lib/lib.batch';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
@@ -9,7 +9,7 @@ export async function main(ns: NS): Promise<void> {
 
   ns.print('Starting batch attack on: ', target, ' from: ', botServer);
 
-  const listCommands = getSimpleProtoBatch(ns, target);
+  const listCommands = getProtoBatch(ns, target, ['h', 'w', 'g', 'w'], true);
 
   const totalScriptCost = listCommands.reduce((acc, cur) => acc + cur.ramOverride * cur.threads, 0);
   ns.print('Total script cost: ', totalScriptCost);

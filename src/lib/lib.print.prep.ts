@@ -1,51 +1,60 @@
-import { PrintRows } from 'lib/lib.print';
+import { NS } from '@ns';
 import { calculatePercent } from 'lib/utils';
-import { ThreatAssesment } from './types';
+import { getThemeColor } from './lib.dom';
 import { formatToUnit } from './number.helper';
+import { PrintRows, ThreatAssesment } from './types';
+import { ICON_CLEAR, ICON_LOCKED, ICON_READY, ICON_TARGET, ICON_WAIT } from './constants';
 
-const iconAttack = '☠';
-const iconPrep = '🛠';
-const iconReady = '✓';
-
-export function generatePrepRow(threatAssessedServers: ThreatAssesment[], light = false, hostUnderAttack: string[] = [], hostPrepping: string[] = []) {
+export function generateTargetRows(
+  ns: NS,
+  threatAssessedServers: ThreatAssesment[],
+  light = false,
+  hostUnderAttack: string[] = [],
+  hostPrepping: string[] = [],
+  hostIgnoring: string[] = [],
+): PrintRows[] {
   const rows: PrintRows[] = [];
 
   let i = 0;
   for (const bot of threatAssessedServers) {
     const { server } = bot.target;
     const securityPercent = calculatePercent(server.minDifficulty, server.hackDifficulty);
-    let color = 'white';
+    let color = getThemeColor(ns, 'secondary');
     const moneyPercentAvailable = calculatePercent(bot.moneyAvailable, bot.moneyMax);
     if (moneyPercentAvailable >= 80) {
-      color = 'green';
+      color = getThemeColor(ns, 'success');
     }
     if (moneyPercentAvailable < 80 && moneyPercentAvailable >= 70) {
-      color = 'yellow';
+      color = getThemeColor(ns, 'successdark');
     }
     if (moneyPercentAvailable < 70) {
-      color = 'orange';
+      color = getThemeColor(ns, 'warning');
     }
     if (moneyPercentAvailable < 50) {
-      color = 'red';
+      color = getThemeColor(ns, 'warningdark');
     }
+
     if (bot.isPrepped) {
       color = 'lime';
     }
 
-    const lightView = ['#', 'Host', 'Security', 'Growth', 'Weaken', '$ Available'];
-    let icon = '';
+    let icon = '  ';
     let iconColor = 'white';
-    if(bot.isPrepped) {
-      icon = iconReady;
-      iconColor = 'lime';
+    if (bot.isPrepped) {
+      icon = ICON_READY;
     }
-    if(hostUnderAttack.includes(bot.target.id)) {
-      icon = iconAttack;
-      iconColor = 'red';
+    if (hostUnderAttack.includes(bot.target.id)) {
+      icon = ICON_TARGET;
     }
-    if(hostPrepping.includes(bot.target.id)) {
-      icon = iconPrep;
-      iconColor = 'blue';
+    if (hostPrepping.includes(bot.target.id)) {
+      icon = ICON_CLEAR;
+    }
+    if (hostIgnoring.includes(bot.target.id)) {
+      icon = ICON_WAIT;
+      color = getThemeColor(ns, 'secondary');
+    }
+    if (server.hasAdminRights === false) {
+      icon = ICON_LOCKED;
     }
 
     const columns = [

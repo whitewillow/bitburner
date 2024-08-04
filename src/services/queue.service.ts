@@ -14,7 +14,7 @@ export async function main(ns: NS): Promise<void> {
    * Temporary queue to hold data
    */
   const QUEUE: any[] = [];
-  const TICK = 1000;
+  const TICK = 500;
 
   /**
    * Max items a port can hold, game will crash if more than this is written

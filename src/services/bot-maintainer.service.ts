@@ -35,7 +35,6 @@ export async function main(ns: NS): Promise<void> {
   }
 
   function getPossibleBotNodesHosts() {
-    // console.log('getPossibleBotNodesHosts');
     return range(0, 25).map((m) => SERVER_PREFIX + m);
   }
 
@@ -47,7 +46,6 @@ export async function main(ns: NS): Promise<void> {
   }
 
   function purchaseServer(host: string, purchaseRamSize: number) {
-    // console.log('purchaseServer');
     ns.purchaseServer(host, purchaseRamSize);
   }
 
@@ -56,7 +54,6 @@ export async function main(ns: NS): Promise<void> {
    */
   let status = 'PURCHASING'; // 'PURCHASING' | 'UPGRADING' | 'MAINTAINING'
   while (true) {
-    // console.log('Sleep');
     await ns.sleep(SLEEP_TIME);
 
     const hosts = getPossibleBotNodesHosts();
@@ -95,12 +92,14 @@ export async function main(ns: NS): Promise<void> {
       const minRam = Math.min(...bots.map((m) => m.server.maxRam));
 
       if (minRam === maxRam) {
+        if (status !== 'MAINTAINING') {
+          ns.printRaw('All servers are upgraded, - Maintaining');
+        }
         status = 'MAINTAINING';
-        // console.log('MAINTAINING');
-        continue;
-      }
 
-      // console.log('UPGRADING');
+        break;
+        // All servers are upgraded
+      }
 
       getBotServers(ns)
         .filter((f) => f.server.maxRam === minRam)

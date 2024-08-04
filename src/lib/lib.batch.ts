@@ -41,7 +41,6 @@ export function getDelays(ns: NS, sequence: string[], targetHost: string): numbe
     g: ns.getGrowTime(targetHost),
   };
 
-
   const baseTimes = sequence.map((_, i) => i + ATTACK_DELAY_MS * i);
 
   const actionStart = sequence.map((action, i) => {
@@ -113,8 +112,11 @@ export function getProtoBatch(
   ns: NS,
   targerServer: string,
   sequence: string[] = ['h', 'w', 'g', 'w'],
+  useSimpleThreads: boolean = false,
 ): ProtoBatchCommands[] {
-  const { hackThreads, weaken1Threads, growThreads, weaken2Threads } = getThreadSequence(ns, targerServer);
+  const { hackThreads, weaken1Threads, growThreads, weaken2Threads } = useSimpleThreads
+    ? { hackThreads: 1, weaken1Threads: 1, growThreads: 2, weaken2Threads: 2 }
+    : getThreadSequence(ns, targerServer);
 
   const [h_delay, w_delay, g_delay, w2_delay] = getDelays(ns, sequence, targerServer);
 
@@ -144,79 +146,6 @@ export function getProtoBatch(
       command: 'weaken',
       ramOverride: WEAKEN_SCRIPT_RAM,
       threads: weaken2Threads,
-      info: 'weaken 2',
-      delay: w2_delay,
-    },
-  ];
-}
-
-export function getSimpleProtoBatch(
-  ns: NS,
-  targerServer: string,
-  sequence: string[] = ['h', 'w', 'g', 'w'],
-): ProtoBatchCommands[] {
-  const [h_delay, w_delay, g_delay, w2_delay] = getDelays(ns, sequence, targerServer);
-
-  return [
-    {
-      command: 'hack',
-      ramOverride: HACK_SCRIPT_RAM,
-      threads: 1,
-      info: 'hack',
-      delay: h_delay,
-    },
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 1,
-      info: 'weaken',
-      delay: w_delay,
-    },
-    {
-      command: 'grow',
-      ramOverride: GROW_SCRIPT_RAM,
-      threads: 2,
-      info: 'grow',
-      delay: g_delay,
-    },
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 2,
-      info: 'weaken 2',
-      delay: w2_delay,
-    },
-  ];
-}
-
-export function getSimplePreppingBatch(
-  ns: NS,
-  targerServer: string,
-  growthBaseThreads = 10,
-  weakenBaseThreads = 1,
-): ProtoBatchCommands[] {
-  const sequence = ['w', 'g', 'w'];
-  const [w_delay, g_delay, w2_delay] = getDelays(ns, sequence, targerServer);
-
-  return [
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 1,
-      info: 'weaken',
-      delay: w_delay,
-    },
-    {
-      command: 'grow',
-      ramOverride: GROW_SCRIPT_RAM,
-      threads: 2,
-      info: 'grow',
-      delay: g_delay,
-    },
-    {
-      command: 'weaken',
-      ramOverride: WEAKEN_SCRIPT_RAM,
-      threads: 2,
       info: 'weaken 2',
       delay: w2_delay,
     },
@@ -267,7 +196,7 @@ export function executeCommands(
   for (const cmd of commands) {
     const { command, ramOverride, threads, info, delay } = cmd;
     const pid = ns.exec(
-      'x.proto.act.js',
+      'remote-action.js',
       fromBot,
       { ramOverride, temporary: true, threads },
       info,

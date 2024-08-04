@@ -38,6 +38,10 @@ export default class XServer {
     return (this.server.moneyMax ?? 0) / (this.server.minDifficulty ?? 0);
   }
 
+  get hackDifficulty() {
+    return this.server.hackDifficulty ?? 99999999;
+  }
+
   /**
    * Returns true if the server is weakened to the max
    * aka - security is weakened to the absolute minimum

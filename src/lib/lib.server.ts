@@ -95,6 +95,17 @@ export function getHackableTargetServers(
   return hackable.sort((a, b) => (a.server[sortByField] ?? 0) - (b.server[sortByField] ?? 0));
 }
 
+export function getPotentialTargets(ns: NS, playerHackingSkill: number) {
+  const potentialTargets = getTargetServers(ns).filter(
+    (f) =>
+      (f.server.moneyMax ?? 0) > 0 &&
+      f.server.hasAdminRights &&
+      f.server.requiredHackingSkill &&
+      f.server.requiredHackingSkill <= playerHackingSkill,
+  );
+  return potentialTargets;
+}
+
 /**
  * Finds all bot servers (Player owned servers) in the game
  * @param ns

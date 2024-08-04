@@ -1,14 +1,15 @@
 import { NS } from '@ns';
-import { PrintRows, printTerminalTable } from './lib/lib.print';
-import { ControllerScript } from './lib/types';
+import { printTerminalTable } from './lib/lib.print';
+import { ControllerScript, PrintRows } from './lib/types';
 import { loadState, saveState } from './state/state';
 import { changeStateControllerScriptState, getStateControllerScripts } from './state/state.controller-scripts';
 import { writeToInputPort } from './lib/lib.port';
+import { getStateIgnoreTargets, setStateIgnoreTargets } from './state/state.controller-ignore';
 
 export async function main(ns: NS): Promise<void> {
   ns.disableLog('ALL');
 
-  const group = ns.args[0]?.toString() ?? 'info'; // 'info' | 'scripts'
+  const group = ns.args[0]?.toString() ?? 'info'; // 'info' | 'scripts' | 'clearstate' | 'ignore'
 
   if (group === 'clearstate') {
     saveState(ns, {}, true);
@@ -46,7 +47,7 @@ export async function main(ns: NS): Promise<void> {
       ns.tprintRaw('');
       printTerminalTable(ns, null, rows, { fancy: false });
       ns.tprintRaw('');
-      ns.tprintRaw('cmd> settings scripts <scriptId> <state: START | PAUSE >');
+      ns.tprintRaw('cmd> settings scripts <scriptId> <state: START | PAUSED >');
       return;
     }
 
@@ -57,5 +58,34 @@ export async function main(ns: NS): Promise<void> {
     }
     changeStateControllerScriptState(ns, scriptId, scriptState);
     writeToInputPort(ns, 'SETTING_SCRIPTS', 1, scriptId);
+  }
+
+  if (group === 'ignore') {
+    const ignore = ns.args[1]?.toString() ?? 'list';
+    const ignoreTargets = getStateIgnoreTargets(ns);
+
+    if (ignore === 'list') {
+      ns.tprintRaw('');
+      ns.tprintRaw('Current ignore targets');
+      ns.tprintRaw('=====================');
+      ns.tprintRaw('');
+      ns.tprintRaw(JSON.stringify(ignoreTargets, null, 2));
+      ns.tprintRaw('');
+      ns.tprintRaw('cmd> settings ignore <target> | list | clear');
+      return;
+    }
+
+    if (ignore === 'clear') {
+      setStateIgnoreTargets(ns, []);
+      return;
+    }
+
+    if (ignoreTargets.includes(ignore)) {
+      ignoreTargets.splice(ignoreTargets.indexOf(ignore), 1);
+    } else {
+      ignoreTargets.push(ignore);
+    }
+
+    setStateIgnoreTargets(ns, ignoreTargets);
   }
 }

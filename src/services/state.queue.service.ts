@@ -13,6 +13,6 @@ export async function main(ns: NS): Promise<void> {
       saveState(ns, { global: event.data });
     }
 
-    await ns.sleep(1000);
+    await ns.sleep(500);
   }
 }
